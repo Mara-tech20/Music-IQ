@@ -88,7 +88,7 @@ Future categories:
 
 # Product Structure
 
-Music IQ is built as a single-page application (SPA) shell (`index.html`) with modular CSS and JavaScript components to maintain smooth, instant view transitions.
+Music IQ is built as a React (Vite) Single Page Application (SPA) with a modular Component architecture, utilizing React Context for global state management to maintain smooth, instant view transitions without page reloads.
 
 ## Global Background & Layout
 
@@ -172,15 +172,15 @@ Customization panel:
 # Gameplay & Timer Mechanics
 
 ### Timer & Timeouts
-* Every question has a strict **30-second** countdown timer.
+* Every question has a strict **15-second** countdown timer.
 * If the timer runs out: the question is recorded as **incorrect silently** and the game immediately advances to the next question.
 * **No timeout modal is shown mid-game** to prevent breaking player momentum.
 
 ### Level Completion & Evaluation
 * A level consists of **4 questions**.
 * After the 4th question, the level performance is evaluated:
-  * **Level Won**: All 4 questions correct. Triggers **Level Complete Modal** with an animated golden trophy, flying stars, and falling confetti.
-  * **Level Failed**: 1 or more questions incorrect or timed out. Triggers **Level Failed Modal** displaying a dejected animated character crying moving tears.
+  * **Level Won**: At least 3 out of 4 questions correct. Triggers **Level Complete Modal** with an animated golden trophy, flying stars, and falling confetti.
+  * **Level Failed**: 2 or more questions incorrect or timed out. Triggers **Level Failed Modal** displaying a dejected animated character crying moving tears.
   * If a failure was caused by any timeouts, the failed modal customizes the hint: *"Time ran out on some questions. Answer every question to unlock the next level."*
 
 ---
