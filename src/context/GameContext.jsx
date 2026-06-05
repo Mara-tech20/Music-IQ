@@ -5,6 +5,7 @@ import { getQuestionsForLevel } from '../data/questions';
 const STORAGE_KEY  = 'musiciq_player';
 const HISTORY_KEY  = 'musiciq_history';
 const NOTIF_KEY    = 'musiciq_notifs';
+const DAILY_KEY    = 'musiciq_daily_reward';
 
 export const RANKS = [
   { title: 'Rookie',       minXP: 0     },
@@ -220,9 +221,9 @@ export function GameProvider({ children }) {
     const s = { ...state.session };
     const p = { ...state.player };
     s.currentLevel++;
-    if (s.currentLevel > s.highestLevel)  s.highestLevel = s.currentLevel;
-    if (s.currentLevel > p.bestLevel)     p.bestLevel    = s.currentLevel;
-    s.score += 30; s.xpEarned += 30; p.xp += 30; p.totalScore += 30;
+    if (s.currentLevel > s.highestLevel) s.highestLevel = s.currentLevel;
+    if (s.currentLevel > p.bestLevel)    p.bestLevel    = s.currentLevel;
+    // NOTE: No bonus XP for advancing — players already earn 10 XP per correct answer
     p.levelsWon++;
     const cs = p.categoryStats[s.category];
     if (cs) { cs.wins++; if (s.currentLevel - 1 > cs.bestLevel) cs.bestLevel = s.currentLevel - 1; }
@@ -271,6 +272,37 @@ export function GameProvider({ children }) {
   const toggleDropdown  = useCallback((open) => dispatch({ type: 'SET_DROPDOWN',   open }), []);
   const toggleNotifPanel = useCallback((open) => dispatch({ type: 'SET_NOTIF_PANEL', open }), []);
 
+  // ─── Daily Reward ──────────────────────────────────────────────────────────
+  const getDailyKey = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  };
+
+  const hasDailyReward = (() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DAILY_KEY) || '{}');
+      return saved.claimedDay !== getDailyKey() && saved.playedToday === getDailyKey();
+    } catch { return false; }
+  })();
+
+  const markPlayedToday = useCallback(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DAILY_KEY) || '{}');
+      localStorage.setItem(DAILY_KEY, JSON.stringify({ ...saved, playedToday: getDailyKey() }));
+    } catch {}
+  }, []);
+
+  const claimDailyReward = useCallback(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DAILY_KEY) || '{}');
+      localStorage.setItem(DAILY_KEY, JSON.stringify({ ...saved, claimedDay: getDailyKey() }));
+      // Award 10 XP
+      const p = { ...state.player };
+      p.xp += 10; p.totalScore += 10;
+      dispatch({ type: 'SET_PLAYER', player: p });
+    } catch {}
+  }, [state.player]);
+
   // Audio synth
   const playSFX = useCallback((type) => {
     if (!state.player.settings.sfx) return;
@@ -308,6 +340,8 @@ export function GameProvider({ children }) {
     // derived
     rank, nextRankXP, xpProgress, initials, accuracy, sessionAccuracy,
     notifications, unreadCount,
+    // daily reward
+    hasDailyReward, claimDailyReward, markPlayedToday,
     // actions
     navigateTo, toggleTheme, updateSetting, saveName,
     startSession, getLevelQuestions, recordAnswer,

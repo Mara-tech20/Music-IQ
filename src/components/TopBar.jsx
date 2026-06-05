@@ -150,7 +150,7 @@ export default function TopBar() {
               {/* User info */}
               <div style={{ padding: '12px', borderBottom: '1px solid var(--border)', marginBottom: '8px' }}>
                 <div style={{ fontWeight: 700 }}>{player.name}</div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{rank.title} · {player.xp.toLocaleString()} XP</div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{rank.title} · ⭐ {player.xp.toLocaleString()}</div>
               </div>
 
               {[

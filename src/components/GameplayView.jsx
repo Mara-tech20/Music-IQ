@@ -6,8 +6,12 @@ const TIME_PER_QUESTION = 15;
 const PASS_THRESHOLD = 4; // Need 4 out of 4 correct to win level
 
 export default function GameplayView() {
-  const { session, getLevelQuestions, recordAnswer, showModal, markUsedIndices, playSFX } = useGame();
+  const { session, getLevelQuestions, recordAnswer, showModal, markUsedIndices, playSFX, markPlayedToday } = useGame();
   const category = CATEGORIES[session.category];
+
+  useEffect(() => {
+    markPlayedToday();
+  }, [markPlayedToday]);
 
   const [questions, setQuestions] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -276,7 +280,7 @@ export default function GameplayView() {
                       animation: 'floatingXP 1.5s ease-out forwards', whiteSpace: 'nowrap',
                       zIndex: 10
                     }}>
-                      +10 XP
+                      +10 ⭐
                     </div>
                   )}
                 </button>

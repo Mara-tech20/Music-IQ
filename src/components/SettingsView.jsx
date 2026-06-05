@@ -1,19 +1,7 @@
-import { useState } from 'react';
 import { useGame } from '../context/GameContext';
 
 export default function SettingsView() {
-  const { player, updateSetting, saveName, playSFX } = useGame();
-  const [nameInput, setNameInput] = useState(player.name);
-  const [savedMsg, setSavedMsg] = useState(false);
-
-  const handleSaveName = () => {
-    if (nameInput.trim().length > 0) {
-      saveName(nameInput.trim());
-      setSavedMsg(true);
-      playSFX('correct');
-      setTimeout(() => setSavedMsg(false), 2000);
-    }
-  };
+  const { player, updateSetting, playSFX } = useGame();
 
   const Toggle = ({ label, desc, checked, onChange }) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
@@ -42,31 +30,6 @@ export default function SettingsView() {
 
   return (
     <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto', animation: 'fadeIn 0.4s ease' }}>
-      
-      <div className="glass-card" style={{ padding: '32px', marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '1.4rem', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span>👤</span> Profile Settings
-        </h3>
-        
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>Display Name</label>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <input 
-              type="text" 
-              value={nameInput}
-              onChange={e => setNameInput(e.target.value)}
-              style={{
-                flex: 1, padding: '12px 16px', borderRadius: 'var(--r-md)',
-                background: 'var(--bg-input)', border: '1px solid var(--border)',
-                color: 'var(--text-primary)', fontSize: '1rem', outline: 'none'
-              }}
-            />
-            <button className="btn-primary" onClick={handleSaveName}>Save</button>
-          </div>
-          {savedMsg && <div style={{ color: 'var(--green)', fontSize: '0.85rem', marginTop: '8px' }}>Name updated successfully!</div>}
-        </div>
-      </div>
-
       <div className="glass-card" style={{ padding: '32px' }}>
         <h3 style={{ fontSize: '1.4rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span>⚙️</span> Preferences
@@ -97,7 +60,6 @@ export default function SettingsView() {
           onChange={(v) => updateSetting('dailyNotif', v)}
         />
       </div>
-
     </div>
   );
 }

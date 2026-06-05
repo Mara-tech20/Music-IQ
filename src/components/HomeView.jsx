@@ -30,15 +30,15 @@ export default function HomeView() {
               <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--gold)' }}>{rank.title}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Total XP</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 800 }}>{player.xp.toLocaleString()}</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Stars</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800 }}>⭐ {player.xp.toLocaleString()}</div>
             </div>
           </div>
           <div className="xp-bar-track">
             <div className="xp-bar-fill" style={{ width: `${xpProgress}%` }}></div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            <span>{player.xp}</span>
+            <span>⭐ {player.xp}</span>
             <span>Next Rank</span>
           </div>
         </div>
