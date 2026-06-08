@@ -8,6 +8,7 @@ export default function TopBar() {
     player, activeView, navigateTo,
     toggleTheme, dropdownOpen, toggleDropdown, initials, rank,
     session, notifOpen, toggleNotifPanel, notifications, unreadCount, markNotifsRead,
+    showModal,
   } = useGame();
   const { logout } = useAuth();
 
@@ -38,7 +39,7 @@ export default function TopBar() {
 
   const handleLogout = () => {
     toggleDropdown(false);
-    logout();
+    showModal('logoutConfirm');
   };
 
   /* ── Icon button style ── */
@@ -53,7 +54,7 @@ export default function TopBar() {
     <header style={{
       height: 'var(--topbar-h)',
       position: 'fixed', top: 0, left: 0, right: 0,
-      background: '#452C6C',
+      background: 'var(--bg-topbar)',
       backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
       borderBottom: '1px solid var(--border)',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -62,12 +63,12 @@ export default function TopBar() {
       {/* Left: back + title */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
         {activeView !== 'home' && (
-          <button onClick={() => navigateTo('home')} style={iconBtn({ background: 'rgba(255,255,255,0.1)' })} title="Back to Dashboard"
-            onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-            onMouseOut={e  => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+          <button onClick={() => navigateTo('home')} style={iconBtn({ background: 'var(--bg-topbar-btn)', color: 'var(--text-topbar)' })} title="Back to Dashboard"
+            onMouseOver={e => e.currentTarget.style.background = 'var(--bg-topbar-btn-hover)'}
+            onMouseOut={e  => e.currentTarget.style.background = 'var(--bg-topbar-btn)'}
           >←</button>
         )}
-        <h1 style={{ fontSize: '1.1rem', margin: 0, fontFamily: 'var(--font-display)', color: '#fff' }}>
+        <h1 style={{ fontSize: '1.1rem', margin: 0, fontFamily: 'var(--font-display)', color: 'var(--text-topbar)' }}>
           {currentTitle}
         </h1>
       </div>
@@ -91,9 +92,9 @@ export default function TopBar() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, justifyContent: 'flex-end' }}>
 
         {/* Theme toggle */}
-        <button onClick={toggleTheme} style={iconBtn({ background: 'rgba(255,255,255,0.1)' })} title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-          onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-          onMouseOut={e  => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+        <button onClick={toggleTheme} style={iconBtn({ background: 'var(--bg-topbar-btn)', color: 'var(--text-topbar)' })} title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          onMouseOver={e => e.currentTarget.style.background = 'var(--bg-topbar-btn-hover)'}
+          onMouseOut={e  => e.currentTarget.style.background = 'var(--bg-topbar-btn)'}
         >
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
@@ -102,10 +103,10 @@ export default function TopBar() {
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => { toggleDropdown(false); navigateTo('notifications'); markNotifsRead(); }}
-            style={iconBtn({ position: 'relative', background: 'rgba(255,255,255,0.1)' })}
+            style={iconBtn({ position: 'relative', background: 'var(--bg-topbar-btn)', color: 'var(--text-topbar)' })}
             title="Notifications"
-            onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-            onMouseOut={e  => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+            onMouseOver={e => e.currentTarget.style.background = 'var(--bg-topbar-btn-hover)'}
+            onMouseOut={e  => e.currentTarget.style.background = 'var(--bg-topbar-btn)'}
           >
             🔔
           </button>
@@ -113,7 +114,7 @@ export default function TopBar() {
             <span style={{
               position: 'absolute', top: '-2px', right: '-2px',
               minWidth: '18px', height: '18px', background: 'var(--red)',
-              borderRadius: 'var(--r-full)', border: '2px solid #452C6C',
+              borderRadius: 'var(--r-full)', border: '2px solid var(--bg-topbar)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '0.65rem', fontWeight: 700, color: '#fff', padding: '0 3px',
             }}>

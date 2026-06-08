@@ -192,8 +192,16 @@ export function GameProvider({ children }) {
       p.gamesPlayed++;
       if (p.categoryStats[category]) p.categoryStats[category].played++;
     }
+    const currentBest = p.categoryStats[category]?.bestLevel || 0;
+    const startLevel = currentBest + 1;
     dispatch({ type: 'SET_PLAYER',  player: p });
-    dispatch({ type: 'SET_SESSION', session: { ...defaultSession(), category, active: true } });
+    dispatch({ type: 'SET_SESSION', session: { 
+      ...defaultSession(), 
+      category, 
+      active: true,
+      currentLevel: startLevel,
+      highestLevel: startLevel
+    } });
     dispatch({ type: 'SET_VIEW',    view: 'gameplay' });
   }, [state.player]);
 
@@ -204,6 +212,7 @@ export function GameProvider({ children }) {
   const recordAnswer = useCallback((isCorrect, timedOut = false) => {
     const s = { ...state.session };
     const p = { ...state.player };
+    const oldXP = p.xp;
     s.totalAnswered++;
     p.totalQuestions++;
     if (isCorrect) {
@@ -211,7 +220,24 @@ export function GameProvider({ children }) {
       p.totalCorrect++;
       s.score    += 10; s.xpEarned += 10;
       p.xp       += 10; p.totalScore += 10;
+    } else {
+      s.xpEarned += 2;
+      p.xp       += 2;
+      p.totalScore += 2;
     }
+
+    // Check rank up
+    const oldRank = getRank(oldXP);
+    const newRank = getRank(p.xp);
+    if (newRank.minXP > oldRank.minXP) {
+      s.rankUpDetails = {
+        oldRank: oldRank.title,
+        newRank: newRank.title,
+        currentLevel: s.currentLevel,
+      };
+      dispatch({ type: 'SET_MODAL', modal: 'rankup' });
+    }
+
     s.answers = [...s.answers, { correct: isCorrect, timedOut }];
     dispatch({ type: 'SET_SESSION', session: s });
     dispatch({ type: 'SET_PLAYER',  player: p });
@@ -298,10 +324,29 @@ export function GameProvider({ children }) {
       localStorage.setItem(DAILY_KEY, JSON.stringify({ ...saved, claimedDay: getDailyKey() }));
       // Award 10 XP
       const p = { ...state.player };
+      const oldXP = p.xp;
       p.xp += 10; p.totalScore += 10;
+
+      const oldRank = getRank(oldXP);
+      const newRank = getRank(p.xp);
+      if (newRank.minXP > oldRank.minXP) {
+        dispatch({
+          type: 'SET_SESSION',
+          session: {
+            ...state.session,
+            rankUpDetails: {
+              oldRank: oldRank.title,
+              newRank: newRank.title,
+              currentLevel: state.session.currentLevel || 1,
+            }
+          }
+        });
+        dispatch({ type: 'SET_MODAL', modal: 'rankup' });
+      }
+
       dispatch({ type: 'SET_PLAYER', player: p });
     } catch {}
-  }, [state.player]);
+  }, [state.player, state.session]);
 
   // Audio synth
   const playSFX = useCallback((type) => {

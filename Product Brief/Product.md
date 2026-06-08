@@ -175,6 +175,7 @@ Customization panel:
 * Every question has a strict **15-second** countdown timer.
 * If the timer runs out: the question is recorded as **incorrect silently** and the game immediately advances to the next question.
 * **No timeout modal is shown mid-game** to prevent breaking player momentum.
+* Players always earn a minor **+2 XP** consolation reward for missed or timed-out questions so that their effort is always rewarded. Correct answers award **+10 XP**.
 
 ### Level Completion & Evaluation
 * A level consists of **4 questions**.
@@ -182,18 +183,32 @@ Customization panel:
   * **Level Won**: At least 3 out of 4 questions correct. Triggers **Level Complete Modal** with an animated golden trophy, flying stars, and falling confetti.
   * **Level Failed**: 2 or more questions incorrect or timed out. Triggers **Level Failed Modal** displaying a dejected animated character crying moving tears.
   * If a failure was caused by any timeouts, the failed modal customizes the hint: *"Time ran out on some questions. Answer every question to unlock the next level."*
+* **Category Progress Retention**: When a player starts or restarts a category, the session begins at their current level in that category (`bestLevel + 1`) rather than resetting back to level 1.
+
+### Rank Progression & Promotions
+* Points/Stars range define the rank system:
+  * **Rookie**: 0 - 499 stars
+  * **Beatmaker**: 500 - 1199 stars
+  * **Track Star**: 1200 - 2499 stars
+  * **Hitmaker**: 2500 - 4499 stars
+  * **Chart Topper**: 4500 - 7499 stars
+  * **Icon**: 7500 - 11999 stars
+  * **Legend**: 12000+ stars
+* **Rank Up Modal**: When a player acquires enough stars to cross into a new rank, a congratulations animated modal overlays instantly, celebrating their advancement with confetti and displaying their current level and new rank.
 
 ---
 
 # Visual Design Guidelines
 
-* **Premium Glassmorphism**: Cards use translucent frosted-glass backgrounds (`rgba(255,255,255,0.07)` in dark, `#ffffff` card bases in light) with running drop-shadows and thin borders.
+* **Premium Glassmorphism**: Cards use translucent frosted-glass backgrounds (`rgba(255,255,255,0.07)` in dark, solid `#ffffff` white card bases in light) with running drop-shadows and thin borders.
 * **Modern Typography**: Clear font hierarchy using Google Fonts `Outfit` (display) and `Space Grotesk` (body).
 * **Smooth Micro-Animations**:
   * Level won trophy bouncy entrance and rotating glow ring.
   * Level failed tear drops sliding down the sad character head.
   * Page screen entries sliding smoothly side-to-side.
   * Avatar dropdown expanding using a scale-in transition.
+* **Profile Credentials Modals**: To maintain a clean and elegant profile tab layout, display name updates and password modifications are triggered by premium horizontal cards which open up interactive local modals.
+* **Log Out Confirmation**: An elegant confirmation modal prompt with an exit door icon prevents accidental logouts.
 
 ---
 
@@ -203,11 +218,12 @@ The system leverages CSS custom variables (`:root`) and a `[data-theme="light"]`
 
 | Token Variable | Dark Mode Value (Default) | Light Mode Value |
 |---|---|---|
-| `--bg-base` | `#080818` (Indiglo Space) | `#f0f2f5` (Light Slate) |
-| `--bg-surface` | `rgba(255,255,255,0.05)` | `rgba(0,0,0,0.05)` |
-| `--bg-card` | `rgba(255,255,255,0.07)` | `rgba(255,255,255,0.85)` |
-| `--bg-elevated` | `rgba(20,20,48,0.95)` | `rgba(255,255,255,0.98)` |
-| `--text-primary` | `#f0f0ff` | `#0f172a` |
-| `--text-secondary` | `rgba(240,240,255,0.65)` | `rgba(15,23,42,0.7)` |
-| `--border` | `rgba(255,255,255,0.1)` | `rgba(0,0,0,0.1)` |
-| `--shadow-card` | `rgba(0,0,0,0.45)` | `rgba(0,0,0,0.08)` |
+| `--bg-base` | `#080818` (Indiglo Space) | `#eae8f4` (Soft Lavender-Grey) |
+| `--bg-surface` | `rgba(255,255,255,0.05)` | `rgba(255,255,255,0.55)` |
+| `--bg-card` | `rgba(255,255,255,0.07)` | `#ffffff` |
+| `--bg-elevated` | `rgba(20,20,48,0.95)` | `#ffffff` |
+| `--text-primary` | `#f0f0ff` | `#181236` |
+| `--text-secondary` | `rgba(240,240,255,0.65)` | `#4a4563` |
+| `--border` | `rgba(255,255,255,0.1)` | `rgba(124,58,237,0.18)` |
+| `--shadow-card` | `rgba(0,0,0,0.45)` | `rgba(124,58,237,0.06)` |
+

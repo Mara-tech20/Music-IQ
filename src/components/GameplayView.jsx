@@ -20,6 +20,7 @@ export default function GameplayView() {
   const [ansState, setAnsState] = useState(null); // 'correct' | 'wrong' | 'timeout'
   const [levelScore, setLevelScore] = useState(0); // correct answers this level
   const [showXP, setShowXP] = useState(false);
+  const [xpGained, setXpGained] = useState(0);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
@@ -69,6 +70,9 @@ export default function GameplayView() {
     setToast("⏰ Time's up!");
     recordAnswer(false, true);
     playSFX('wrong');
+    setXpGained(2);
+    setShowXP(true);
+    setTimeout(() => setShowXP(false), 1500);
     nextQuestion(false);
   };
 
@@ -85,10 +89,14 @@ export default function GameplayView() {
     if (isCorrect) {
       setLevelScore(prev => prev + 1);
       playSFX('correct');
+      setXpGained(10);
       setShowXP(true);
       setTimeout(() => setShowXP(false), 1500);
     } else {
       playSFX('wrong');
+      setXpGained(2);
+      setShowXP(true);
+      setTimeout(() => setShowXP(false), 1500);
     }
     
     recordAnswer(isCorrect, false);
@@ -191,7 +199,24 @@ export default function GameplayView() {
             }}>
               {timeLeft}
             </div>
-            
+            {showXP && selectedAns === null && (
+              <div style={{
+                position: 'absolute',
+                top: '-30px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: 'var(--gold)',
+                fontWeight: 'bold',
+                fontSize: '1.3rem',
+                textShadow: '0 2px 6px rgba(0,0,0,0.5)',
+                pointerEvents: 'none',
+                animation: 'floatingXP 1.5s ease-out forwards',
+                whiteSpace: 'nowrap',
+                zIndex: 10
+              }}>
+                +{xpGained} ⭐
+              </div>
+            )}
             <style>{`
               @keyframes floatingXP {
                 0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
@@ -272,15 +297,16 @@ export default function GameplayView() {
                   <span style={{ flex: 1 }}>{ans}</span>
                   
                   {/* Floating XP Animation */}
-                  {showXP && selectedAns === idx && idx === currentQ.correctIndex && (
+                  {showXP && selectedAns === idx && (
                     <div style={{
                       position: 'absolute', top: '-25px', left: '50%', transform: 'translateX(-50%)',
-                      color: 'var(--green)', fontWeight: 'bold', fontSize: '1.3rem',
+                      color: idx === currentQ.correctIndex ? 'var(--green)' : 'var(--gold)',
+                      fontWeight: 'bold', fontSize: '1.3rem',
                       textShadow: '0 2px 6px rgba(0,0,0,0.5)', pointerEvents: 'none',
                       animation: 'floatingXP 1.5s ease-out forwards', whiteSpace: 'nowrap',
                       zIndex: 10
                     }}>
-                      +10 ⭐
+                      +{xpGained} ⭐
                     </div>
                   )}
                 </button>

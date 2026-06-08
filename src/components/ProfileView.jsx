@@ -23,6 +23,9 @@ export default function ProfileView() {
   const [confPw, setConfPw] = useState('');
   const [pwMsg,  setPwMsg]  = useState(null); // { text, ok }
 
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [showPwModal, setShowPwModal] = useState(false);
+
   const getAccuracyColor = (acc) => {
     if (acc >= 80) return 'var(--green)';
     if (acc >= 50) return 'var(--gold)';
@@ -120,93 +123,165 @@ export default function ProfileView() {
         ))}
       </div>
 
-      {/* ── EDIT PROFILE ──────────────────────────────────────────── */}
-      <div className="glass-card" style={{ padding: '28px' }}>
-        <SectionTitle icon="✏️" label="Edit Profile" />
-
-        {/* Display Name */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-            Display Name
-          </label>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <input
-              type="text"
-              value={nameInput}
-              onChange={e => setNameInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSaveName()}
-              placeholder="Your display name"
-              style={{ ...inputStyle, flex: '1 1 200px' }}
-              onFocus={e  => e.target.style.borderColor = 'var(--border-focus)'}
-              onBlur={e   => e.target.style.borderColor = 'var(--border)'}
-            />
-            <button className="btn-primary" onClick={handleSaveName} style={{ padding: '12px 24px', whiteSpace: 'nowrap' }}>
-              Save Name
-            </button>
-          </div>
-          {nameSaved && (
-            <div style={{ color: 'var(--green)', fontSize: '0.84rem', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '5px', animation: 'fadeIn 0.3s ease' }}>
-              ✓ Display name updated!
+      {/* ── ACCOUNT ACTIONS CARDS ─────────────────────────────────── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Name edit card */}
+        <div 
+          className="glass-card"
+          onClick={() => { setShowNameModal(true); setNameInput(player.name); }}
+          style={{
+            padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            cursor: 'pointer', transition: 'all 0.2s'
+          }}
+          onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'var(--purple-light)'; }}
+          onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ fontSize: '1.8rem' }}>✏️</div>
+            <div>
+              <h4 style={{ fontSize: '1.1rem', marginBottom: '4px', fontFamily: 'var(--font-display)' }}>Update Profile Name</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Change your display name visible across leaderboards</p>
             </div>
-          )}
+          </div>
+          <div style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>➔</div>
+        </div>
+
+        {/* Password edit card */}
+        <div 
+          className="glass-card"
+          onClick={() => setShowPwModal(true)}
+          style={{
+            padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            cursor: 'pointer', transition: 'all 0.2s'
+          }}
+          onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'var(--purple-light)'; }}
+          onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ fontSize: '1.8rem' }}>🔐</div>
+            <div>
+              <h4 style={{ fontSize: '1.1rem', marginBottom: '4px', fontFamily: 'var(--font-display)' }}>Change Password</h4>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Update your security credentials</p>
+            </div>
+          </div>
+          <div style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>➔</div>
         </div>
       </div>
 
-      {/* ── CHANGE PASSWORD ───────────────────────────────────────── */}
-      <div className="glass-card" style={{ padding: '28px' }}>
-        <SectionTitle icon="🔐" label="Change Password" />
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>Current Password</label>
-            <input
-              type="password" value={curPw} onChange={e => setCurPw(e.target.value)}
-              placeholder="Enter current password"
-              style={inputStyle}
-              onFocus={e => e.target.style.borderColor = 'var(--border-focus)'}
-              onBlur={e  => e.target.style.borderColor = 'var(--border)'}
-            />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', flexWrap: 'wrap' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>New Password</label>
+      {/* ── LOCAL MODAL: NAME EDIT ── */}
+      {showNameModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1050,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
+          animation: 'modalOverlayIn 0.3s ease'
+        }}>
+          <div className="glass-card" style={{
+            width: '90%', maxWidth: '440px', padding: '32px 28px',
+            animation: 'modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>✏️ Update Profile Name</h3>
+              <button onClick={() => { setShowNameModal(false); setNameSaved(false); }} style={{ fontSize: '1.5rem', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
+            </div>
+            
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                Display Name
+              </label>
               <input
-                type="password" value={newPw} onChange={e => setNewPw(e.target.value)}
-                placeholder="Min. 6 characters"
+                type="text"
+                value={nameInput}
+                onChange={e => setNameInput(e.target.value)}
+                placeholder="Enter display name"
                 style={inputStyle}
-                onFocus={e => e.target.style.borderColor = 'var(--border-focus)'}
-                onBlur={e  => e.target.style.borderColor = 'var(--border)'}
+                onFocus={e  => e.target.style.borderColor = 'var(--border-focus)'}
+                onBlur={e   => e.target.style.borderColor = 'var(--border)'}
               />
+              {nameSaved && (
+                <div style={{ color: 'var(--green)', fontSize: '0.84rem', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  ✓ Display name updated!
+                </div>
+              )}
             </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>Confirm New Password</label>
-              <input
-                type="password" value={confPw} onChange={e => setConfPw(e.target.value)}
-                placeholder="Re-enter new password"
-                style={inputStyle}
-                onFocus={e => e.target.style.borderColor = 'var(--border-focus)'}
-                onBlur={e  => e.target.style.borderColor = 'var(--border)'}
-              />
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button className="btn-secondary" style={{ flex: 1 }} onClick={() => { setShowNameModal(false); setNameSaved(false); }}>Cancel</button>
+              <button className="btn-primary" style={{ flex: 1 }} onClick={handleSaveName}>Save Name</button>
             </div>
           </div>
-
-          {pwMsg && (
-            <div style={{
-              padding: '10px 14px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600,
-              background: pwMsg.ok ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
-              border: `1px solid ${pwMsg.ok ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
-              color: pwMsg.ok ? 'var(--green)' : 'var(--red)',
-              animation: 'fadeIn 0.3s ease',
-            }}>
-              {pwMsg.text}
-            </div>
-          )}
-
-          <button className="btn-primary" onClick={handleChangePassword} style={{ alignSelf: 'flex-start', padding: '12px 28px' }}>
-            🔐 Update Password
-          </button>
         </div>
-      </div>
+      )}
+
+      {/* ── LOCAL MODAL: CHANGE PASSWORD ── */}
+      {showPwModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1050,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
+          animation: 'modalOverlayIn 0.3s ease'
+        }}>
+          <div className="glass-card" style={{
+            width: '90%', maxWidth: '460px', padding: '32px 28px',
+            animation: 'modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>🔐 Change Password</h3>
+              <button onClick={() => { setShowPwModal(false); setPwMsg(null); }} style={{ fontSize: '1.5rem', color: 'var(--text-muted)', cursor: 'pointer' }}>✕</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>Current Password</label>
+                <input
+                  type="password" value={curPw} onChange={e => setCurPw(e.target.value)}
+                  placeholder="Enter current password"
+                  style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = 'var(--border-focus)'}
+                  onBlur={e  => e.target.style.borderColor = 'var(--border)'}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>New Password</label>
+                <input
+                  type="password" value={newPw} onChange={e => setNewPw(e.target.value)}
+                  placeholder="Min. 6 characters"
+                  style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = 'var(--border-focus)'}
+                  onBlur={e  => e.target.style.borderColor = 'var(--border)'}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>Confirm New Password</label>
+                <input
+                  type="password" value={confPw} onChange={e => setConfPw(e.target.value)}
+                  placeholder="Re-enter new password"
+                  style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = 'var(--border-focus)'}
+                  onBlur={e  => e.target.style.borderColor = 'var(--border)'}
+                />
+              </div>
+
+              {pwMsg && (
+                <div style={{
+                  padding: '10px 14px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600,
+                  background: pwMsg.ok ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+                  border: `1px solid ${pwMsg.ok ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                  color: pwMsg.ok ? 'var(--green)' : 'var(--red)',
+                  animation: 'fadeIn 0.3s ease',
+                }}>
+                  {pwMsg.text}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button className="btn-secondary" style={{ flex: 1 }} onClick={() => { setShowPwModal(false); setPwMsg(null); }}>Cancel</button>
+              <button className="btn-primary" style={{ flex: 1 }} onClick={handleChangePassword}>Update Password</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── CATEGORY BREAKDOWN ────────────────────────────────────── */}
       <div>

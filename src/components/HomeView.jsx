@@ -2,7 +2,7 @@ import { useGame } from '../context/GameContext';
 import { CATEGORY_LIST } from '../data/questions';
 
 export default function HomeView() {
-  const { player, rank, xpProgress, startSession, playSFX } = useGame();
+  const { player, rank, xpProgress, startSession, playSFX, showModal } = useGame();
 
   const handleStart = (catId) => {
     playSFX('click');
@@ -27,7 +27,28 @@ export default function HomeView() {
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
             <div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Rank</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--gold)' }}>{rank.title}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--gold)' }}>{rank.title}</span>
+                <button 
+                  onClick={() => { playSFX('click'); showModal('rankSystem'); }} 
+                  style={{
+                    background: 'var(--bg-input)',
+                    borderRadius: '50%',
+                    width: '20px',
+                    height: '20px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    color: 'var(--text-secondary)',
+                    border: '1px solid var(--border)'
+                  }}
+                  title="View Rank System"
+                >
+                  ℹ️
+                </button>
+              </div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Stars</div>
