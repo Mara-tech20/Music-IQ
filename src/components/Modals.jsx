@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useGame, RANKS } from '../context/GameContext';
 import { useAuth } from '../context/AuthContext';
+import { exportRankUpCard } from '../utils/shareUtils';
 
 export default function Modals() {
   const { modal, hideModal, advanceLevel, restartLevel, endSession, playSFX, session, navigateTo, player, rank } = useGame();
@@ -239,6 +240,16 @@ export default function Modals() {
               hideModal();
             }}>
               Awesome! 🚀
+            </button>
+            <button 
+              className="btn-secondary" 
+              onClick={() => {
+                playSFX('click');
+                exportRankUpCard(player.name, session.rankUpDetails?.newRank || rank.title, player.xp);
+              }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              📥 Download Rank Up Card
             </button>
           </div>
         </div>

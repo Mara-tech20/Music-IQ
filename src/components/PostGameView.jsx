@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGame, getRank } from '../context/GameContext';
 import { CATEGORIES } from '../data/questions';
+import { exportPostGameCard } from '../utils/shareUtils';
 
 // ─── Simulated global leaderboard data ──────────────────────────────────────
 function buildLeaderboard(playerName, playerXP, playerCategory) {
@@ -397,6 +398,24 @@ export default function PostGameView() {
               style={{ flex: '1 1 140px', maxWidth: '200px', fontSize: '1rem', padding: '15px 20px' }}>
               🏠 &nbsp;Home
             </button>
+            <button 
+              className="btn-ghost" 
+              onClick={() => {
+                playSFX('click');
+                exportPostGameCard({
+                  playerName: player.name,
+                  categoryName: category.name,
+                  level,
+                  score,
+                  accuracy,
+                  starsEarned: xp,
+                  rankTitle: rankInfo.title
+                });
+              }}
+              style={{ flex: '1 1 180px', maxWidth: '240px', fontSize: '1rem', padding: '15px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              📥 &nbsp;Share Summary Card
+            </button>
           </div>
         </div>
 
@@ -507,6 +526,24 @@ export default function PostGameView() {
           <button className="btn-secondary" onClick={handleHome}
             style={{ flex: '1 1 160px', fontSize: '1rem', padding: '16px 20px' }}>
             🏠 &nbsp;Back to Home
+          </button>
+          <button 
+            className="btn-ghost" 
+            onClick={() => {
+              playSFX('click');
+              exportPostGameCard({
+                playerName: player.name,
+                categoryName: category.name,
+                level,
+                score,
+                accuracy,
+                starsEarned: xp,
+                rankTitle: rankInfo.title
+              });
+            }}
+            style={{ flex: '1 1 180px', fontSize: '1rem', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+          >
+            📥 &nbsp;Share Summary Card
           </button>
         </div>
 

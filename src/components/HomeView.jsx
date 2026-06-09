@@ -1,12 +1,29 @@
+import { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { CATEGORY_LIST } from '../data/questions';
 
 export default function HomeView() {
   const { player, rank, xpProgress, startSession, playSFX, showModal } = useGame();
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestInput, setRequestInput] = useState('');
+  const [requestSent, setRequestSent] = useState(false);
 
   const handleStart = (catId) => {
     playSFX('click');
     startSession(catId);
+  };
+
+  const handleRequestSubmit = () => {
+    if (!requestInput.trim()) return;
+    const saved = JSON.parse(localStorage.getItem('musiciq_category_requests') || '[]');
+    saved.push({ category: requestInput.trim(), ts: Date.now() });
+    localStorage.setItem('musiciq_category_requests', JSON.stringify(saved));
+    setRequestSent(true);
+    setTimeout(() => {
+      setShowRequestModal(false);
+      setRequestInput('');
+      setRequestSent(false);
+    }, 2200);
   };
 
   return (
@@ -129,8 +146,142 @@ export default function HomeView() {
               </div>
             </div>
           ))}
+        {/* ── Request a Category Card ── */}
+        <div
+          onClick={() => { playSFX('click'); setShowRequestModal(true); }}
+          style={{
+            borderRadius: 'var(--r-lg)', cursor: 'pointer', overflow: 'hidden',
+            border: '2px dashed rgba(124,58,237,0.4)',
+            background: 'rgba(124,58,237,0.04)',
+            display: 'flex', flexDirection: 'column', justifyContent: 'center',
+            alignItems: 'center', minHeight: '220px', gap: '16px',
+            transition: 'all 0.3s ease',
+            animation: `slideInUp 0.5s ease backwards`,
+            animationDelay: `${CATEGORY_LIST.length * 0.1}s`,
+          }}
+          onMouseOver={e => {
+            e.currentTarget.style.borderColor = 'var(--purple-light)';
+            e.currentTarget.style.background = 'rgba(124,58,237,0.08)';
+            e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+          }}
+          onMouseOut={e => {
+            e.currentTarget.style.borderColor = 'rgba(124,58,237,0.4)';
+            e.currentTarget.style.background = 'rgba(124,58,237,0.04)';
+            e.currentTarget.style.transform = 'none';
+          }}
+        >
+          <div style={{
+            width: '64px', height: '64px', borderRadius: '50%',
+            background: 'rgba(124,58,237,0.15)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '2rem',
+            border: '2px dashed rgba(124,58,237,0.4)',
+            animation: 'ambientPulse 3s ease-in-out infinite'
+          }}>✨</div>
+          <div style={{ textAlign: 'center', padding: '0 24px' }}>
+            <h4 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '6px', fontFamily: 'var(--font-display)' }}>
+              Request a Category
+            </h4>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.4 }}>
+              Don't see your favourite genre? Suggest it and we'll add it!
+            </p>
+          </div>
+          <div style={{
+            fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em',
+            color: 'var(--purple-light)', textTransform: 'uppercase',
+            background: 'rgba(124,58,237,0.15)', padding: '6px 16px',
+            borderRadius: 'var(--r-full)'
+          }}>+ Request</div>
         </div>
+      </div>
       </section>
+
+      {/* ── Request Category Modal ── */}
+      {showRequestModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1100,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
+          animation: 'modalOverlayIn 0.3s ease'
+        }}>
+          <div className="glass-card" style={{
+            width: '90%', maxWidth: '480px', padding: '36px 30px',
+            animation: 'modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            position: 'relative', overflow: 'hidden'
+          }}>
+            {/* purple glow accent */}
+            <div style={{
+              position: 'absolute', top: '-40px', right: '-40px',
+              width: '160px', height: '160px',
+              background: 'rgba(124,58,237,0.25)', filter: 'blur(50px)',
+              borderRadius: '50%', pointerEvents: 'none'
+            }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, fontFamily: 'var(--font-display)' }}>✨ Request a Category</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '4px' }}>Tell us what genre you'd love to see!</p>
+              </div>
+              <button
+                onClick={() => { setShowRequestModal(false); setRequestInput(''); setRequestSent(false); }}
+                style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--text-muted)', cursor: 'pointer', lineHeight: 1 }}
+              >✕</button>
+            </div>
+
+            {!requestSent ? (
+              <>
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Category / Genre Name
+                  </label>
+                  <input
+                    type="text"
+                    value={requestInput}
+                    onChange={e => setRequestInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleRequestSubmit()}
+                    placeholder="e.g. Jazz, Classical, K-Pop, Gospel…"
+                    style={{
+                      width: '100%', padding: '14px 18px', borderRadius: '14px',
+                      background: 'var(--bg-input)', border: '1.5px solid var(--border)',
+                      color: 'var(--text-primary)', fontSize: '1rem', outline: 'none',
+                      fontFamily: 'var(--font-body)', transition: 'border-color 0.2s',
+                      boxSizing: 'border-box'
+                    }}
+                    onFocus={e => e.target.style.borderColor = 'var(--purple-light)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                    autoFocus
+                  />
+                </div>
+
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '24px', background: 'rgba(255,255,255,0.04)', padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                  💡 Popular categories include Afrobeats, K-Pop, Jazz, Gospel, Classical, and more. We review submissions weekly!
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    className="btn-ghost" style={{ flex: 1 }}
+                    onClick={() => { setShowRequestModal(false); setRequestInput(''); }}
+                  >Cancel</button>
+                  <button
+                    className="btn-primary" style={{ flex: 2 }}
+                    onClick={handleRequestSubmit}
+                    disabled={!requestInput.trim()}
+                  >Submit Request 🚀</button>
+                </div>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '20px 0', animation: 'fadeIn 0.4s ease' }}>
+                <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🎉</div>
+                <h4 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--green)', marginBottom: '10px' }}>Request Submitted!</h4>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                  Thanks for suggesting <strong style={{ color: 'var(--purple-light)' }}>"{requestInput}"</strong>!<br/>
+                  We'll review it and add it to Music IQ soon.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

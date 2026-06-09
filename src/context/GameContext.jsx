@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
+import { createContext, useContext, useReducer, useEffect, useCallback, useRef } from 'react';
 import { getQuestionsForLevel } from '../data/questions';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -37,6 +37,72 @@ export function getInitials(name) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+export function getBadges(player) {
+  const stats = player.categoryStats || {};
+  const getAcc = (cat) => {
+    const s = stats[cat];
+    if (!s || !s.total) return 0;
+    return s.correct / s.total;
+  };
+  const getLvl = (cat) => {
+    const s = stats[cat];
+    return s ? s.bestLevel : 0;
+  };
+
+  return [
+    {
+      id: 'general_guru',
+      title: 'General Music Guru',
+      emoji: '🎵',
+      description: 'Achieve Level 3+ with 75%+ accuracy in General Music',
+      unlocked: getLvl('general') >= 3 && getAcc('general') >= 0.75,
+      color: '#7c3aed',
+      req: 'Lv. 3+ & 75% Acc',
+      current: `Lv. ${getLvl('general')} · ${Math.round(getAcc('general') * 100)}%`
+    },
+    {
+      id: 'pop_legend',
+      title: 'Pop Legend',
+      emoji: '🌟',
+      description: 'Achieve Level 3+ with 75%+ accuracy in Pop Music',
+      unlocked: getLvl('pop') >= 3 && getAcc('pop') >= 0.75,
+      color: '#ec4899',
+      req: 'Lv. 3+ & 75% Acc',
+      current: `Lv. ${getLvl('pop')} · ${Math.round(getAcc('pop') * 100)}%`
+    },
+    {
+      id: 'hiphop_expert',
+      title: 'Hip-Hop Expert',
+      emoji: '🎤',
+      description: 'Achieve Level 3+ with 75%+ accuracy in Hip Hop',
+      unlocked: getLvl('hiphop') >= 3 && getAcc('hiphop') >= 0.75,
+      color: '#f97316',
+      req: 'Lv. 3+ & 75% Acc',
+      current: `Lv. ${getLvl('hiphop')} · ${Math.round(getAcc('hiphop') * 100)}%`
+    },
+    {
+      id: 'afrobeats_master',
+      title: 'Afrobeats Master',
+      emoji: '🌍',
+      description: 'Achieve Level 3+ with 70%+ accuracy in Afrobeats',
+      unlocked: getLvl('afrobeats') >= 3 && getAcc('afrobeats') >= 0.70,
+      color: '#d97706',
+      req: 'Lv. 3+ & 70% Acc',
+      current: `Lv. ${getLvl('afrobeats')} · ${Math.round(getAcc('afrobeats') * 100)}%`
+    },
+    {
+      id: 'rock_hero',
+      title: 'Rock Hero',
+      emoji: '🎸',
+      description: 'Achieve Level 3+ with 75%+ accuracy in Rock Music',
+      unlocked: getLvl('rock') >= 3 && getAcc('rock') >= 0.75,
+      color: '#b91c1c',
+      req: 'Lv. 3+ & 75% Acc',
+      current: `Lv. ${getLvl('rock')} · ${Math.round(getAcc('rock') * 100)}%`
+    }
+  ];
+}
+
 // ─── Notifications ────────────────────────────────────────────────────────────
 export function buildNotifications(player) {
   const notifs = [];
@@ -66,6 +132,7 @@ function defaultPlayer() {
       pop:       { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
       hiphop:    { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
       afrobeats: { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
+      rock:      { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
     },
     settings: {
       music: true, sfx: true, dailyNotif: true, lbNotif: false,
@@ -130,6 +197,227 @@ export function GameProvider({ children }) {
     dropdownOpen: false,
     notifOpen: false,
   });
+
+  // Background Music Controller
+  const musicRef = useRef({
+    ctx: null,
+    masterGain: null,
+    intervalId: null,
+    currentOscillators: [],
+    isPlaying: false
+  });
+
+  const playNextBar = useCallback(() => {
+    const info = musicRef.current;
+    if (!info.ctx || !info.masterGain) return;
+    
+    if (info.ctx.state === 'suspended') {
+      info.ctx.resume();
+    }
+    
+    const now = info.ctx.currentTime;
+    
+    // Clean up finished oscillators
+    info.currentOscillators = info.currentOscillators.filter(osc => {
+      try { return osc.stopTime > now; } catch { return false; }
+    });
+
+    const bpm = 126;
+    const stepDuration = 60 / bpm / 2; // 8th note step duration
+    
+    // Upbeat chords progression loop (4 bars loop)
+    // Bar 0: C major, Bar 1: F major, Bar 2: G major, Bar 3: A minor
+    const chords = [
+      { // C major
+        bassRoot: 130.81, // C3
+        bassFifth: 196.00, // G3
+        notes: [261.63, 329.63, 392.00, 523.25] // C4, E4, G4, C5
+      },
+      { // F major
+        bassRoot: 174.61, // F3
+        bassFifth: 261.63, // C4
+        notes: [349.23, 440.00, 523.25, 698.46] // F4, A4, C5, F5
+      },
+      { // G major
+        bassRoot: 196.00, // G3
+        bassFifth: 293.66, // D4
+        notes: [392.00, 493.88, 587.33, 783.99] // G4, B4, D5, G5
+      },
+      { // A minor
+        bassRoot: 220.00, // A3
+        bassFifth: 329.63, // E4
+        notes: [440.00, 523.25, 659.25, 880.00] // A4, C5, E5, A5
+      }
+    ];
+
+    if (info.barIndex === undefined) info.barIndex = 0;
+    const currentChord = chords[info.barIndex];
+    info.barIndex = (info.barIndex + 1) % chords.length;
+
+    // Schedule 8 steps for the upcoming bar
+    for (let step = 0; step < 8; step++) {
+      const time = now + step * stepDuration;
+
+      // ─── 1. Bouncy Bassline (triangle wave with a lowpass filter) ───
+      // Bass plays on every quarter note (step 0, 2, 4, 6)
+      if (step % 2 === 0) {
+        const bassOsc = info.ctx.createOscillator();
+        const bassGain = info.ctx.createGain();
+        const bassFilter = info.ctx.createBiquadFilter();
+
+        bassOsc.type = 'triangle';
+        // Alternating root and fifth for a fun bouncy vibe
+        const isRoot = step === 0 || step === 4;
+        bassOsc.frequency.setValueAtTime(isRoot ? currentChord.bassRoot : currentChord.bassFifth, time);
+
+        // Lowpass filter to keep bass warm and avoid clicking
+        bassFilter.type = 'lowpass';
+        bassFilter.frequency.setValueAtTime(220, time);
+
+        // Envelope
+        bassGain.gain.setValueAtTime(0, time);
+        bassGain.gain.linearRampToValueAtTime(0.08, time + 0.015);
+        bassGain.gain.exponentialRampToValueAtTime(0.001, time + stepDuration * 0.9);
+
+        bassOsc.connect(bassGain);
+        bassGain.connect(bassFilter);
+        bassFilter.connect(info.masterGain);
+
+        bassOsc.start(time);
+        bassOsc.stop(time + stepDuration * 0.9);
+        bassOsc.stopTime = time + stepDuration * 0.9;
+        info.currentOscillators.push(bassOsc);
+      }
+
+      // ─── 2. Upbeat Arpeggiator (crisp sine wave plucks) ───
+      // Plays on all 8 steps to drive momentum
+      const pattern = [0, 2, 1, 3, 2, 1, 3, 2];
+      const noteFreq = currentChord.notes[pattern[step]];
+
+      const pluckOsc = info.ctx.createOscillator();
+      const pluckGain = info.ctx.createGain();
+
+      pluckOsc.type = 'sine';
+      pluckOsc.frequency.setValueAtTime(noteFreq, time);
+
+      // Fast decay envelope for high energy plucks
+      pluckGain.gain.setValueAtTime(0, time);
+      pluckGain.gain.linearRampToValueAtTime(0.02, time + 0.008);
+      pluckGain.gain.exponentialRampToValueAtTime(0.0001, time + stepDuration * 0.8);
+
+      pluckOsc.connect(pluckGain);
+      pluckGain.connect(info.masterGain);
+
+      pluckOsc.start(time);
+      pluckOsc.stop(time + stepDuration * 0.8);
+      pluckOsc.stopTime = time + stepDuration * 0.8;
+      info.currentOscillators.push(pluckOsc);
+
+      // ─── 3. Driving Hi-Hats / clicks ───
+      // Hi-hats on off-beats (steps 1, 3, 5, 7) for upbeat syncopation
+      if (step % 2 === 1) {
+        const hatOsc = info.ctx.createOscillator();
+        const hatGain = info.ctx.createGain();
+        const hatFilter = info.ctx.createBiquadFilter();
+
+        hatOsc.type = 'triangle';
+        hatOsc.frequency.setValueAtTime(9000, time);
+
+        hatFilter.type = 'highpass';
+        hatFilter.frequency.setValueAtTime(4500, time);
+
+        hatGain.gain.setValueAtTime(0, time);
+        hatGain.gain.linearRampToValueAtTime(0.012, time + 0.003);
+        hatGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.04);
+
+        hatOsc.connect(hatGain);
+        hatGain.connect(hatFilter);
+        hatFilter.connect(info.masterGain);
+
+        hatOsc.start(time);
+        hatOsc.stop(time + 0.05);
+        hatOsc.stopTime = time + 0.05;
+        info.currentOscillators.push(hatOsc);
+      }
+    }
+  }, []);
+
+  const startMusic = useCallback(() => {
+    const info = musicRef.current;
+    if (info.isPlaying) return;
+    
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      
+      info.ctx = new Ctx();
+      info.masterGain = info.ctx.createGain();
+      info.masterGain.gain.setValueAtTime(0, info.ctx.currentTime);
+      info.masterGain.connect(info.ctx.destination);
+      info.masterGain.gain.linearRampToValueAtTime(0.12, info.ctx.currentTime + 1.0);
+      
+      info.isPlaying = true;
+      info.barIndex = 0;
+      
+      const bpm = 126;
+      const stepDuration = 60 / bpm / 2;
+      const barDurationMs = stepDuration * 8 * 1000; // time in ms for 8 eighth notes
+      
+      playNextBar();
+      info.intervalId = setInterval(playNextBar, barDurationMs);
+    } catch (e) {
+      console.error("Failed to start background music:", e);
+    }
+  }, [playNextBar]);
+
+  const stopMusic = useCallback(() => {
+    const info = musicRef.current;
+    if (!info.isPlaying) return;
+    
+    info.isPlaying = false;
+    if (info.intervalId) {
+      clearInterval(info.intervalId);
+      info.intervalId = null;
+    }
+    
+    if (info.masterGain && info.ctx) {
+      const now = info.ctx.currentTime;
+      try {
+        info.masterGain.gain.cancelScheduledValues(now);
+        info.masterGain.gain.setValueAtTime(info.masterGain.gain.value, now);
+        info.masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.0);
+      } catch {}
+      
+      setTimeout(() => {
+        info.currentOscillators.forEach(osc => { try { osc.stop(); } catch {} });
+        info.currentOscillators = [];
+        try {
+          if (info.ctx && info.ctx.state !== 'closed') {
+            info.ctx.close();
+          }
+        } catch {}
+        info.ctx = null;
+        info.masterGain = null;
+      }, 1100);
+    }
+  }, []);
+
+  useEffect(() => {
+    const isGameplayActive = state.session.active;
+    const isMusicEnabled = state.player.settings.music;
+    
+    if (isGameplayActive && isMusicEnabled) {
+      startMusic();
+    } else {
+      stopMusic();
+    }
+    
+    return () => {
+      if (!isGameplayActive || !isMusicEnabled) {
+        stopMusic();
+      }
+    };
+  }, [state.session.active, state.player.settings.music, startMusic, stopMusic]);
 
   // Persist player
   useEffect(() => {
@@ -376,6 +664,8 @@ export function GameProvider({ children }) {
     } catch {}
   }, [state.player.settings.sfx]);
 
+  const badges = getBadges(state.player);
+
   const value = {
     // state
     player: state.player, session: state.session,
@@ -384,7 +674,7 @@ export function GameProvider({ children }) {
     notifOpen: state.notifOpen,
     // derived
     rank, nextRankXP, xpProgress, initials, accuracy, sessionAccuracy,
-    notifications, unreadCount,
+    notifications, unreadCount, badges,
     // daily reward
     hasDailyReward, claimDailyReward, markPlayedToday,
     // actions

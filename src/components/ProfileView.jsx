@@ -11,7 +11,7 @@ const inputStyle = {
 };
 
 export default function ProfileView() {
-  const { player, rank, xpProgress, initials, saveName } = useGame();
+  const { player, rank, xpProgress, initials, saveName, badges } = useGame();
 
   // Edit profile state
   const [nameInput, setNameInput]     = useState(player.name);
@@ -121,6 +121,94 @@ export default function ProfileView() {
             <div style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{s.label}</div>
           </div>
         ))}
+      </div>
+      
+      {/* ── MUSIC BADGES & ACHIEVEMENTS ───────────────────────────── */}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+          <div style={{ width: '4px', height: '22px', borderRadius: '2px', background: 'linear-gradient(to bottom,var(--gold),var(--orange))' }} />
+          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 800 }}>Genre & Artist Badges</h3>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: '14px' }}>
+          {badges.map(b => (
+            <div 
+              key={b.id} 
+              className="glass-card" 
+              style={{ 
+                padding: '20px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '16px', 
+                position: 'relative', 
+                overflow: 'hidden',
+                opacity: b.unlocked ? 1 : 0.55,
+                filter: b.unlocked ? 'none' : 'grayscale(80%)',
+                border: b.unlocked ? `1px solid ${b.color}88` : '1px solid var(--border)',
+                boxShadow: b.unlocked ? `0 0 20px ${b.color}25` : 'none',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseOver={e => {
+                if (b.unlocked) {
+                  e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = `0 12px 24px ${b.color}40`;
+                }
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.transform = 'none';
+                e.currentTarget.style.boxShadow = b.unlocked ? `0 0 20px ${b.color}25` : 'none';
+              }}
+            >
+              {/* background subtle glow */}
+              {b.unlocked && (
+                <div style={{
+                  position: 'absolute', top: '-20px', left: '-20px',
+                  width: '80px', height: '80px', background: b.color,
+                  filter: 'blur(30px)', borderRadius: '50%', pointerEvents: 'none', opacity: 0.3
+                }} />
+              )}
+              
+              <div style={{ 
+                fontSize: '2.5rem', 
+                animation: b.unlocked ? 'floatUp 4s ease-in-out infinite alternate' : 'none',
+                filter: b.unlocked ? `drop-shadow(0 0 10px ${b.color})` : 'none'
+              }}>
+                {b.emoji}
+              </div>
+              
+              <div style={{ flex: 1 }}>
+                <h4 style={{ 
+                  fontSize: '1.05rem', 
+                  fontWeight: 800, 
+                  color: b.unlocked ? b.color : 'var(--text-primary)',
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '4px'
+                }}>
+                  {b.title}
+                </h4>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.3, marginBottom: '6px' }}>
+                  {b.description}
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                  <span style={{ 
+                    fontSize: '0.7rem', 
+                    padding: '2px 8px', 
+                    borderRadius: '4px',
+                    background: b.unlocked ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)',
+                    color: b.unlocked ? 'var(--green)' : 'var(--text-muted)',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                  }}>
+                    {b.unlocked ? 'Unlocked ✓' : 'Locked'}
+                  </span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    {b.unlocked ? 'Completed!' : b.current}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* ── ACCOUNT ACTIONS CARDS ─────────────────────────────────── */}

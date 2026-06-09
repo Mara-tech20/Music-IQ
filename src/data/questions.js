@@ -43,6 +43,16 @@ export const CATEGORIES = {
     gameGradient: 'linear-gradient(135deg,rgba(146,64,14,0.7),rgba(6,95,70,0.5))',
     timerColor: '#f59e0b',
   },
+  rock: {
+    id: 'rock', name: 'Rock Music', emoji: '🎸', shortName: 'Rock',
+    difficulty: 'Medium', questionCount: 20,
+    description: 'Classic rock, metal, punk and alternative anthems',
+    colorA: '#b91c1c', colorB: '#0f172a',
+    gradient: 'linear-gradient(135deg, #7f1d1d, #0f172a)',
+    glow: 'rgba(185,28,28,0.5)', barColor: 'linear-gradient(90deg,#b91c1c,#0f172a)',
+    gameGradient: 'linear-gradient(135deg,rgba(127,29,29,0.7),rgba(15,23,42,0.5))',
+    timerColor: '#ef4444',
+  },
 };
 
 export const CATEGORY_LIST = Object.values(CATEGORIES);
@@ -249,6 +259,34 @@ export const QUESTIONS = {
     { q:'"Bank on It" is from Beyoncé\'s African-inspired album called?', a:['The Lion King: The Gift','Black Is King','Lemonade','Renaissance'], correct:0 },
     { q:'Mr Eazi\'s viral song "Pour Me Water" became popular in which year?', a:['2013','2015','2017','2019'], correct:1 },
     { q:'CKay\'s "Love Nwantiti" reached the top 10 in how many countries?', a:['Over 50','Over 70','Over 90','Over 100'], correct:2 },
+  ],
+  rock: [
+    // Level 1-3 Easy pool (first 16 questions)
+    { q:'Which of these is a famous rock band?', a:['A microwave','Queen','A bicycle','A calculator'], correct:1 },
+    { q:'Which instrument is most iconic in rock music?', a:['Violin','Electric Guitar','Flute','Harp'], correct:1 },
+    { q:'What do rock singers use to amplify their voice?', a:['Headphones','Microphone','Speaker','Turntable'], correct:1 },
+    { q:'Which of these is a famous rock subgenre?', a:['Heavy Metal','Calculator Beat','Word Rap','Spelling Jazz'], correct:0 },
+
+    { q:'Who was the lead singer of Queen?', a:['Freddie Mercury','John Lennon','Mick Jagger','Elvis Presley'], correct:0 },
+    { q:'Which rock band released "Stairway to Heaven"?', a:['The Beatles','Led Zeppelin','AC/DC','Pink Floyd'], correct:1 },
+    { q:'Who is known as the "King of Rock and Roll"?', a:['Michael Jackson','Prince','Elvis Presley','Chuck Berry'], correct:2 },
+    { q:'Which band released the album "The Dark Side of the Moon"?', a:['Pink Floyd','Queen','The Who','The Doors'], correct:0 },
+
+    { q:'What is the lead instrument in Jimi Hendrix\'s music?', a:['Piano','Electric Guitar','Drums','Saxophone'], correct:1 },
+    { q:'Which rock band is famous for the song "Smells Like Teen Spirit"?', a:['Nirvana','Pearl Jam','Soundgarden','Alice in Chains'], correct:0 },
+    { q:'Who is the guitarist of the band AC/DC known for wearing a schoolboy uniform?', a:['Slash','Angus Young','Keith Richards','Jimmy Page'], correct:1 },
+    { q:'Which city did The Beatles come from?', a:['London','Liverpool','Manchester','Birmingham'], correct:1 },
+
+    { q:'Who sang "Purple Haze"?', a:['Jimi Hendrix','Eric Clapton','Jimmy Page','Jeff Beck'], correct:0 },
+    { q:'Which band released the song "Sweet Child O\' Mine"?', a:['Guns N\' Roses','Aerosmith','Bon Jovi','Metallica'], correct:0 },
+    { q:'Who is the lead singer of The Rolling Stones?', a:['Robert Plant','Mick Jagger','Steven Tyler','Ozzy Osbourne'], correct:1 },
+    { q:'Which rock star was known as "The Prince of Darkness"?', a:['Alice Cooper','Ozzy Osbourne','Gene Simmons','Rob Halford'], correct:1 },
+
+    // Normal pool (remaining questions)
+    { q:'Which album is Nirvana\'s breakthrough release from 1991?', a:['In Utero','Bleach','Nevermind','Incesticide'], correct:2 },
+    { q:'Who is the drummer for the rock band Foo Fighters and former Nirvana drummer?', a:['Taylor Hawkins','Dave Grohl','Chad Smith','Travis Barker'], correct:1 },
+    { q:'What year was the Woodstock music festival held?', a:['1967','1968','1969','1970'], correct:2 },
+    { q:'Which band released the heavy metal album "Master of Puppets"?', a:['Iron Maiden','Judas Priest','Megadeth','Metallica'], correct:3 }
   ],
 };
 
