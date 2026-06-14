@@ -22,6 +22,10 @@ export default function GameplayView() {
   const [showXP, setShowXP] = useState(false);
   const [xpGained, setXpGained] = useState(0);
   const [toast, setToast] = useState(null);
+  const [levelIntro, setLevelIntro] = useState(false);
+  const [countdown, setCountdown] = useState(10);
+
+  const levelRef = useRef(session.currentLevel);
 
   useEffect(() => {
     if (toast) {
@@ -29,6 +33,31 @@ export default function GameplayView() {
       return () => clearTimeout(t);
     }
   }, [toast]);
+
+  // Level intro transition trigger
+  useEffect(() => {
+    if (session.currentLevel > levelRef.current && session.currentLevel > 1) {
+      setLevelIntro(true);
+      setCountdown(5);
+      playSFX('click');
+      
+      const interval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setLevelIntro(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      levelRef.current = session.currentLevel;
+      return () => clearInterval(interval);
+    } else {
+      levelRef.current = session.currentLevel;
+    }
+  }, [session.currentLevel, playSFX]);
 
   const timerRef = useRef(null);
   const timeoutRef = useRef(null);
@@ -50,7 +79,7 @@ export default function GameplayView() {
 
   useEffect(() => {
     // Timer logic
-    if (selectedAns !== null || ansState !== null || questions.length === 0) return;
+    if (selectedAns !== null || ansState !== null || questions.length === 0 || levelIntro) return;
 
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
@@ -64,7 +93,7 @@ export default function GameplayView() {
     }, 1000);
 
     return () => clearInterval(timerRef.current);
-  }, [selectedAns, ansState, questions, currentIdx]);
+  }, [selectedAns, ansState, questions, currentIdx, levelIntro]);
 
   const handleTimeOut = () => {
     setToast("⏰ Time's up!");
@@ -113,9 +142,6 @@ export default function GameplayView() {
       
       const finalScoreThisLevel = levelScore + (wasCorrect ? 1 : 0);
 
-      // Save XP earned this level to session state to display in fail/win modals
-      // (This is implicitly tracked in GameContext's session.xpEarned, but let's rely on the modals to use it)
-
       if (finalScoreThisLevel >= PASS_THRESHOLD) {
         showModal('win');
       } else {
@@ -135,6 +161,36 @@ export default function GameplayView() {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, []);
+
+  if (levelIntro) {
+    const introProgress = ((5 - countdown) / 5) * 100;
+    return (
+      <div style={{
+        minHeight: '480px', width: '100%', maxWidth: '800px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '28px',
+        animation: 'fadeIn 0.4s ease', margin: '0 auto', color: '#fff', textAlign: 'center',
+      }}>
+        {/* Spinner ring */}
+        <div style={{
+          width: '80px', height: '80px', borderRadius: '50%',
+          border: `5px solid rgba(255,255,255,0.1)`,
+          borderTopColor: category.timerColor,
+          animation: 'spin 0.9s linear infinite',
+        }} />
+
+        <div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '0.02em' }}>
+            Loading Level {session.currentLevel}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ width: '200px', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--r-full)', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${introProgress}%`, background: category.timerColor, transition: 'width 1s linear', borderRadius: 'var(--r-full)' }} />
+        </div>
+      </div>
+    );
+  }
 
   if (!questions.length) return null;
 
@@ -190,12 +246,15 @@ export default function GameplayView() {
           <div style={{ position: 'relative' }}>
             <div style={{
               width: '60px', height: '60px', borderRadius: '50%',
-              background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.5rem', fontWeight: 'bold',
+              background: timeLeft <= 5 ? 'rgba(239,68,68,0.15)' : 'rgba(0,0,0,0.55)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.5rem', fontWeight: 900,
               border: `4px solid ${timeLeft <= 5 ? 'var(--red)' : category.timerColor}`,
-              color: timeLeft <= 5 ? 'var(--red)' : '#fff',
+              color: timeLeft <= 5 ? 'var(--red)' : '#ffffff',
+              textShadow: '0 1px 4px rgba(0,0,0,0.8)',
               animation: timeLeft <= 5 ? 'timerPulseRed 1s infinite, timerUrgent 1s infinite' : 'none',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              boxShadow: `0 0 0 2px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.2)`
             }}>
               {timeLeft}
             </div>
@@ -251,22 +310,29 @@ export default function GameplayView() {
           {/* Answers */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
             {currentQ.answers.map((ans, idx) => {
-              let bg = 'var(--bg-card)';
-              let borderColor = 'var(--border)';
+              let bg = 'rgba(0,0,0,0.45)';
+              let borderColor = 'rgba(255,255,255,0.25)';
+              let textColor = '#ffffff';
               let animation = 'none';
+              let boxShadow = '0 2px 12px rgba(0,0,0,0.3)';
 
               if (ansState !== null) {
                 if (idx === currentQ.correctIndex) {
-                  bg = 'rgba(16,185,129,0.2)';
+                  bg = 'rgba(16,185,129,0.35)';
                   borderColor = 'var(--green)';
+                  textColor = '#ffffff';
+                  boxShadow = `0 4px 20px rgba(16,185,129,0.4)`;
                   animation = ansState === 'correct' && selectedAns === idx ? 'correctPulse 1s' : 'none';
                 } else if (idx === selectedAns) {
-                  bg = 'rgba(239,68,68,0.2)';
+                  bg = 'rgba(239,68,68,0.35)';
                   borderColor = 'var(--red)';
+                  textColor = '#ffffff';
+                  boxShadow = `0 4px 20px rgba(239,68,68,0.4)`;
                   animation = 'wrongShake 0.5s';
                 } else {
-                  bg = 'rgba(255,255,255,0.02)';
-                  borderColor = 'transparent';
+                  bg = 'rgba(0,0,0,0.25)';
+                  borderColor = 'rgba(255,255,255,0.1)';
+                  textColor = 'rgba(255,255,255,0.5)';
                 }
               }
 
@@ -279,18 +345,35 @@ export default function GameplayView() {
                     position: 'relative',
                     padding: '24px', fontSize: '1.1rem', borderRadius: 'var(--r-md)',
                     background: bg, border: `2px solid ${borderColor}`,
+                    color: textColor,
                     textAlign: 'left', display: 'flex', alignItems: 'center', gap: '16px',
                     transition: 'all 0.2s', cursor: ansState !== null ? 'default' : 'pointer',
                     animation: animation,
-                    backdropFilter: 'blur(10px)'
+                    backdropFilter: 'blur(16px)',
+                    boxShadow: boxShadow,
                   }}
-                  onMouseOver={(e) => { if(ansState === null) { e.currentTarget.style.background = 'var(--bg-card-hover)'; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
-                  onMouseOut={(e) => { if(ansState === null) { e.currentTarget.style.background = bg; e.currentTarget.style.transform = 'translateY(0)'; } }}
+                  onMouseOver={(e) => {
+                    if (ansState === null) {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.18)';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)';
+                      e.currentTarget.style.transform = 'translateY(-3px)';
+                      e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.4)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (ansState === null) {
+                      e.currentTarget.style.background = bg;
+                      e.currentTarget.style.borderColor = borderColor;
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = boxShadow;
+                    }
+                  }}
                 >
                   <div style={{
-                    width: '36px', height: '36px', borderRadius: '50%',
-                    background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 'bold', color: 'var(--text-secondary)'
+                    width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
+                    background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 800, color: '#ffffff', fontSize: '0.9rem',
+                    border: '1.5px solid rgba(255,255,255,0.3)',
                   }}>
                     {['A', 'B', 'C', 'D'][idx]}
                   </div>

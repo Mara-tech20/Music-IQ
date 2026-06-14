@@ -1,9 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { CATEGORY_LIST } from '../data/questions';
 
 export default function HomeView() {
-  const { player, rank, xpProgress, startSession, playSFX, showModal } = useGame();
+  const { player, rank, xpProgress, startSession, playSFX, showModal, pendingRankUp } = useGame();
+
+  // Show the deferred rank-up celebration when returning to home
+  useEffect(() => {
+    if (pendingRankUp) {
+      const t = setTimeout(() => showModal('rankup'), 700);
+      return () => clearTimeout(t);
+    }
+  }, [pendingRankUp, showModal]);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestInput, setRequestInput] = useState('');
   const [requestSent, setRequestSent] = useState(false);
@@ -27,6 +35,25 @@ export default function HomeView() {
   };
 
   return (
+    <>
+    <style>{`
+      .cat-card .cat-emoji {
+        display: inline-block;
+        transition: filter 0.3s ease;
+        animation: catEmojiDance 3s ease-in-out infinite;
+        will-change: transform;
+      }
+      @keyframes catEmojiDance {
+        0%   { transform: translateY(0) scale(1) rotate(-3deg); }
+        25%  { transform: translateY(-6px) scale(1.06) rotate(3deg); }
+        50%  { transform: translateY(0) scale(1) rotate(-3deg); }
+        75%  { transform: translateY(-6px) scale(1.06) rotate(3deg); }
+        100% { transform: translateY(0) scale(1) rotate(-3deg); }
+      }
+      .cat-card:hover .cat-emoji {
+        filter: drop-shadow(0 6px 22px currentColor) brightness(1.25);
+      }
+    `}</style>
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', animation: 'fadeIn 0.4s ease' }}>
       
       {/* Welcome & Stats Section */}
@@ -49,21 +76,27 @@ export default function HomeView() {
                 <button 
                   onClick={() => { playSFX('click'); showModal('rankSystem'); }} 
                   style={{
-                    background: 'var(--bg-input)',
-                    borderRadius: '50%',
-                    width: '20px',
-                    height: '20px',
+                    background: 'linear-gradient(135deg, var(--purple), var(--purple-light))',
+                    borderRadius: 'var(--r-full)',
+                    padding: '4px 12px',
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '0.8rem',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
                     cursor: 'pointer',
-                    color: 'var(--text-secondary)',
-                    border: '1px solid var(--border)'
+                    color: '#fff',
+                    border: 'none',
+                    letterSpacing: '0.04em',
+                    boxShadow: '0 2px 10px rgba(124,58,237,0.5)',
+                    gap: '4px',
+                    transition: 'all 0.2s ease',
                   }}
+                  onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(124,58,237,0.7)'; }}
+                  onMouseOut={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 2px 10px rgba(124,58,237,0.5)'; }}
                   title="View Rank System"
                 >
-                  ℹ️
+                  🏅 View Ranks
                 </button>
               </div>
             </div>
@@ -95,7 +128,7 @@ export default function HomeView() {
           {CATEGORY_LIST.map((cat, i) => (
             <div 
               key={cat.id} 
-              className="glass-card"
+              className="glass-card cat-card"
               onClick={() => handleStart(cat.id)}
               style={{
                 padding: '0', overflow: 'hidden', cursor: 'pointer',
@@ -106,7 +139,7 @@ export default function HomeView() {
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
-                e.currentTarget.style.boxShadow = `0 20px 40px ${cat.glow}`;
+                e.currentTarget.style.boxShadow = `0 24px 48px ${cat.glow}`;
               }}
               onMouseOut={(e) => {
                 e.currentTarget.style.transform = 'translateY(0) scale(1)';
@@ -114,14 +147,39 @@ export default function HomeView() {
               }}
             >
               <div style={{ 
-                height: '140px', background: cat.gradient, 
+                height: '160px', background: cat.gradient, 
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '64px', position: 'relative'
+                fontSize: '68px', position: 'relative', overflow: 'hidden'
               }}>
-                <span style={{ 
-                  animation: 'floatUp 6s ease-in-out infinite alternate',
-                  filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
-                }}>{cat.emoji}</span>
+                {/* Decorative blurred glow blob */}
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: `radial-gradient(ellipse at center, ${cat.glow} 0%, transparent 70%)`,
+                  opacity: 0.6,
+                  pointerEvents: 'none'
+                }} />
+                {/* Decorative music notes */}
+                <div style={{
+                  position: 'absolute', top: '12px', right: '16px',
+                  fontSize: '1.1rem', opacity: 0.45,
+                  animation: 'cardNoteBounce 2.8s ease-in-out infinite',
+                  animationDelay: '0.4s'
+                }}>♪</div>
+                <div style={{
+                  position: 'absolute', bottom: '14px', left: '18px',
+                  fontSize: '0.85rem', opacity: 0.35,
+                  animation: 'cardNoteBounce 3.2s ease-in-out infinite',
+                  animationDelay: '1.1s'
+                }}>♫</div>
+                <span
+                  className="cat-emoji"
+                  style={{
+                    filter: `drop-shadow(0 4px 16px ${cat.glow})`,
+                    position: 'relative', zIndex: 1,
+                    fontSize: '72px',
+                    animationDelay: `${i * 0.15}s`,
+                  }}
+                >{cat.emoji}</span>
               </div>
               
               <div style={{ padding: '24px' }}>
@@ -284,5 +342,6 @@ export default function HomeView() {
       )}
 
     </div>
+    </>
   );
 }

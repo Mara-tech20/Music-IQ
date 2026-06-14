@@ -91,14 +91,14 @@ export function getBadges(player) {
       current: `Lv. ${getLvl('afrobeats')} · ${Math.round(getAcc('afrobeats') * 100)}%`
     },
     {
-      id: 'rock_hero',
-      title: 'Rock Hero',
-      emoji: '🎸',
-      description: 'Achieve Level 3+ with 75%+ accuracy in Rock Music',
-      unlocked: getLvl('rock') >= 3 && getAcc('rock') >= 0.75,
-      color: '#b91c1c',
+      id: 'mj_aficionado',
+      title: 'MJ Aficionado',
+      emoji: '🕺',
+      description: 'Achieve Level 3+ with 75%+ accuracy in Artist Spotlight',
+      unlocked: getLvl('artistSpotlight') >= 3 && getAcc('artistSpotlight') >= 0.75,
+      color: '#d97706',
       req: 'Lv. 3+ & 75% Acc',
-      current: `Lv. ${getLvl('rock')} · ${Math.round(getAcc('rock') * 100)}%`
+      current: `Lv. ${getLvl('artistSpotlight')} · ${Math.round(getAcc('artistSpotlight') * 100)}%`
     }
   ];
 }
@@ -127,18 +127,19 @@ function defaultPlayer() {
     xp: 0, totalScore: 0, gamesPlayed: 0, levelsWon: 0,
     streak: 0, bestStreak: 0, lastPlayed: null, bestLevel: 1,
     totalCorrect: 0, totalQuestions: 0,
+    avatar: null, // { type: 'emoji', emoji: '🎵', bg: 'linear-gradient(...)' } | { type: 'image', dataURL: '...' }
     categoryStats: {
-      general:   { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
-      pop:       { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
-      hiphop:    { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
-      afrobeats: { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
-      rock:      { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
+      general:         { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
+      pop:             { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
+      hiphop:          { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
+      afrobeats:       { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
+      artistSpotlight: { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
     },
     settings: {
       music: true, sfx: true, dailyNotif: true, lbNotif: false,
       reducedMotion: false, highContrast: false, darkMode: true,
     },
-    notifsRead: [],  // IDs of read notifications
+    notifsRead: [],
   };
 }
 
@@ -161,6 +162,7 @@ function gameReducer(state, action) {
     case 'SET_MODAL':     return { ...state, modal: action.modal };
     case 'SET_DROPDOWN':  return { ...state, dropdownOpen: action.open };
     case 'SET_NOTIF_PANEL': return { ...state, notifOpen: action.open };
+    case 'SET_PENDING_RANKUP': return { ...state, pendingRankUp: action.data };
     case 'SET_THEME':
       return { ...state, player: { ...state.player, settings: { ...state.player.settings, darkMode: action.dark } } };
     default: return state;
@@ -193,19 +195,27 @@ export function GameProvider({ children }) {
     session: defaultSession(),
     activeView: 'home',
     prevView: 'home',
-    modal: null,            // 'win' | 'lose' | 'endconfirm' | 'postgame' | null
+    modal: null,
     dropdownOpen: false,
     notifOpen: false,
+    pendingRankUp: null, // { oldRank, newRank, stars } — shown on home screen
   });
 
-  // Background Music Controller
+  // Gameplay music controller
   const musicRef = useRef({
-    ctx: null,
-    masterGain: null,
-    intervalId: null,
-    currentOscillators: [],
-    isPlaying: false
+    ctx: null, masterGain: null, intervalId: null, currentOscillators: [], isPlaying: false
   });
+
+  // Home screen ambient music controller
+  const homeAudioRef = useRef({
+    ctx: null, masterGain: null, intervalId: null, isPlaying: false, barIndex: 0
+  });
+
+  // Keep a mutable ref of session state for high performance audio engine reading
+  const sessionRef = useRef(state.session);
+  useEffect(() => {
+    sessionRef.current = state.session;
+  }, [state.session]);
 
   const playNextBar = useCallback(() => {
     const info = musicRef.current;
@@ -222,61 +232,98 @@ export function GameProvider({ children }) {
       try { return osc.stopTime > now; } catch { return false; }
     });
 
-    const bpm = 126;
-    const stepDuration = 60 / bpm / 2; // 8th note step duration
-    
-    // Upbeat chords progression loop (4 bars loop)
-    // Bar 0: C major, Bar 1: F major, Bar 2: G major, Bar 3: A minor
-    const chords = [
-      { // C major
-        bassRoot: 130.81, // C3
-        bassFifth: 196.00, // G3
-        notes: [261.63, 329.63, 392.00, 523.25] // C4, E4, G4, C5
-      },
-      { // F major
-        bassRoot: 174.61, // F3
-        bassFifth: 261.63, // C4
-        notes: [349.23, 440.00, 523.25, 698.46] // F4, A4, C5, F5
-      },
-      { // G major
-        bassRoot: 196.00, // G3
-        bassFifth: 293.66, // D4
-        notes: [392.00, 493.88, 587.33, 783.99] // G4, B4, D5, G5
-      },
-      { // A minor
-        bassRoot: 220.00, // A3
-        bassFifth: 329.63, // E4
-        notes: [440.00, 523.25, 659.25, 880.00] // A4, C5, E5, A5
-      }
-    ];
+    const cat = sessionRef.current?.category || 'general';
+    const level = sessionRef.current?.currentLevel || 1;
+
+    let baseBpm = 120;
+    let chords = [];
+    let bassOscType = 'triangle';
+    let pluckOscType = 'sine';
+    let isAfrobeats = false;
+    let isHiphop = false;
+
+    if (cat === 'pop') {
+      baseBpm = 124;
+      bassOscType = 'triangle';
+      pluckOscType = 'sine';
+      chords = [
+        { bassRoot: 130.81, bassFifth: 196.00, notes: [261.63, 329.63, 392.00, 523.25] }, // C
+        { bassRoot: 196.00, bassFifth: 293.66, notes: [392.00, 493.88, 587.33, 783.99] }, // G
+        { bassRoot: 220.00, bassFifth: 329.63, notes: [440.00, 523.25, 659.25, 880.00] }, // Am
+        { bassRoot: 174.61, bassFifth: 261.63, notes: [349.23, 440.00, 523.25, 698.46] }  // F
+      ];
+    } else if (cat === 'hiphop') {
+      baseBpm = 94;
+      bassOscType = 'sine';
+      pluckOscType = 'triangle';
+      isHiphop = true;
+      chords = [
+        { bassRoot: 82.41, bassFifth: 123.47, notes: [164.81, 196.00, 246.94, 329.63] }, // Em
+        { bassRoot: 73.42, bassFifth: 110.00, notes: [146.83, 185.00, 220.00, 293.66] }, // D
+        { bassRoot: 65.41, bassFifth: 98.00,  notes: [130.81, 164.81, 196.00, 261.63] }, // C
+        { bassRoot: 61.74, bassFifth: 92.50,  notes: [123.47, 155.56, 185.00, 246.94] }  // B7
+      ];
+    } else if (cat === 'afrobeats') {
+      baseBpm = 108;
+      bassOscType = 'triangle';
+      pluckOscType = 'sine';
+      isAfrobeats = true;
+      chords = [
+        { bassRoot: 92.50, bassFifth: 138.59, notes: [185.00, 220.00, 277.18, 369.99] }, // F#m
+        { bassRoot: 82.41, bassFifth: 123.47, notes: [164.81, 207.65, 246.94, 329.63] }, // E
+        { bassRoot: 110.00, bassFifth: 164.81, notes: [220.00, 261.63, 329.63, 440.00] }, // Bm
+        { bassRoot: 123.47, bassFifth: 185.00, notes: [246.94, 293.66, 369.99, 493.88] }  // C#m
+      ];
+    } else if (cat === 'artistSpotlight') {
+      baseBpm = 118;
+      bassOscType = 'sawtooth';
+      pluckOscType = 'sine';
+      chords = [
+        { bassRoot: 110.00, bassFifth: 164.81, notes: [220.00, 261.63, 329.63, 440.00] }, // Am7
+        { bassRoot: 146.83, bassFifth: 220.00, notes: [293.66, 349.23, 440.00, 587.33] }, // Dm7
+        { bassRoot: 196.00, bassFifth: 293.66, notes: [392.00, 493.88, 587.33, 783.99] }, // G7
+        { bassRoot: 130.81, bassFifth: 196.00, notes: [261.63, 329.63, 392.00, 523.25] }  // Cmaj7
+      ];
+    } else {
+      baseBpm = 120;
+      bassOscType = 'triangle';
+      pluckOscType = 'sine';
+      chords = [
+        { bassRoot: 130.81, bassFifth: 196.00, notes: [261.63, 329.63, 392.00, 523.25] },
+        { bassRoot: 174.61, bassFifth: 261.63, notes: [349.23, 440.00, 523.25, 698.46] },
+        { bassRoot: 196.00, bassFifth: 293.66, notes: [392.00, 493.88, 587.33, 783.99] },
+        { bassRoot: 220.00, bassFifth: 329.63, notes: [440.00, 523.25, 659.25, 880.00] }
+      ];
+    }
+
+    const currentBpm = baseBpm + (level - 1) * 8;
+    const stepDuration = 60 / currentBpm / 2;
+    const transpose = level === 2 ? 1.1892 : level >= 3 ? 1.4983 : 1.0;
 
     if (info.barIndex === undefined) info.barIndex = 0;
-    const currentChord = chords[info.barIndex];
+    const currentChord = chords[info.barIndex % chords.length];
     info.barIndex = (info.barIndex + 1) % chords.length;
 
-    // Schedule 8 steps for the upcoming bar
     for (let step = 0; step < 8; step++) {
-      const time = now + step * stepDuration;
+      const swingOffset = isHiphop && step % 2 === 1 ? 0.015 : 0;
+      const time = now + step * stepDuration + swingOffset;
 
-      // ─── 1. Bouncy Bassline (triangle wave with a lowpass filter) ───
-      // Bass plays on every quarter note (step 0, 2, 4, 6)
       if (step % 2 === 0) {
         const bassOsc = info.ctx.createOscillator();
         const bassGain = info.ctx.createGain();
         const bassFilter = info.ctx.createBiquadFilter();
 
-        bassOsc.type = 'triangle';
-        // Alternating root and fifth for a fun bouncy vibe
+        bassOsc.type = bassOscType;
         const isRoot = step === 0 || step === 4;
-        bassOsc.frequency.setValueAtTime(isRoot ? currentChord.bassRoot : currentChord.bassFifth, time);
+        const freq = (isRoot ? currentChord.bassRoot : currentChord.bassFifth) * transpose;
+        bassOsc.frequency.setValueAtTime(freq, time);
 
-        // Lowpass filter to keep bass warm and avoid clicking
         bassFilter.type = 'lowpass';
         bassFilter.frequency.setValueAtTime(220, time);
 
-        // Envelope
         bassGain.gain.setValueAtTime(0, time);
-        bassGain.gain.linearRampToValueAtTime(0.08, time + 0.015);
+        const bassVolume = bassOscType === 'sawtooth' ? 0.16 : 0.28;
+        bassGain.gain.linearRampToValueAtTime(bassVolume, time + 0.015);
         bassGain.gain.exponentialRampToValueAtTime(0.001, time + stepDuration * 0.9);
 
         bassOsc.connect(bassGain);
@@ -289,20 +336,18 @@ export function GameProvider({ children }) {
         info.currentOscillators.push(bassOsc);
       }
 
-      // ─── 2. Upbeat Arpeggiator (crisp sine wave plucks) ───
-      // Plays on all 8 steps to drive momentum
       const pattern = [0, 2, 1, 3, 2, 1, 3, 2];
-      const noteFreq = currentChord.notes[pattern[step]];
+      const noteFreq = currentChord.notes[pattern[step]] * transpose;
 
       const pluckOsc = info.ctx.createOscillator();
       const pluckGain = info.ctx.createGain();
 
-      pluckOsc.type = 'sine';
+      pluckOsc.type = pluckOscType;
       pluckOsc.frequency.setValueAtTime(noteFreq, time);
 
-      // Fast decay envelope for high energy plucks
       pluckGain.gain.setValueAtTime(0, time);
-      pluckGain.gain.linearRampToValueAtTime(0.02, time + 0.008);
+      const pluckVolume = 0.12 * (level >= 2 ? 1.25 : 1.0);
+      pluckGain.gain.linearRampToValueAtTime(pluckVolume, time + 0.008);
       pluckGain.gain.exponentialRampToValueAtTime(0.0001, time + stepDuration * 0.8);
 
       pluckOsc.connect(pluckGain);
@@ -313,9 +358,11 @@ export function GameProvider({ children }) {
       pluckOsc.stopTime = time + stepDuration * 0.8;
       info.currentOscillators.push(pluckOsc);
 
-      // ─── 3. Driving Hi-Hats / clicks ───
-      // Hi-hats on off-beats (steps 1, 3, 5, 7) for upbeat syncopation
-      if (step % 2 === 1) {
+      const isHatStep = isAfrobeats 
+        ? (step === 0 || step === 3 || step === 5)
+        : (step % 2 === 1);
+
+      if (isHatStep) {
         const hatOsc = info.ctx.createOscillator();
         const hatGain = info.ctx.createGain();
         const hatFilter = info.ctx.createBiquadFilter();
@@ -327,7 +374,8 @@ export function GameProvider({ children }) {
         hatFilter.frequency.setValueAtTime(4500, time);
 
         hatGain.gain.setValueAtTime(0, time);
-        hatGain.gain.linearRampToValueAtTime(0.012, time + 0.003);
+        const hatVolume = 0.055 * (level >= 3 ? 1.3 : 1.0);
+        hatGain.gain.linearRampToValueAtTime(hatVolume, time + 0.003);
         hatGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.04);
 
         hatOsc.connect(hatGain);
@@ -342,6 +390,29 @@ export function GameProvider({ children }) {
     }
   }, []);
 
+  const updateMusicTempo = useCallback(() => {
+    const info = musicRef.current;
+    if (!info.isPlaying || !info.ctx) return;
+    
+    if (info.intervalId) {
+      clearInterval(info.intervalId);
+    }
+    
+    const cat = sessionRef.current?.category || 'general';
+    const lvl = sessionRef.current?.currentLevel || 1;
+    let baseBpm = 120;
+    if (cat === 'pop') baseBpm = 124;
+    else if (cat === 'hiphop') baseBpm = 94;
+    else if (cat === 'afrobeats') baseBpm = 108;
+    else if (cat === 'artistSpotlight') baseBpm = 118;
+
+    const bpm = baseBpm + (lvl - 1) * 8;
+    const stepDuration = 60 / bpm / 2;
+    const barDurationMs = stepDuration * 8 * 1000;
+    
+    info.intervalId = setInterval(playNextBar, barDurationMs);
+  }, [playNextBar]);
+
   const startMusic = useCallback(() => {
     const info = musicRef.current;
     if (info.isPlaying) return;
@@ -354,12 +425,20 @@ export function GameProvider({ children }) {
       info.masterGain = info.ctx.createGain();
       info.masterGain.gain.setValueAtTime(0, info.ctx.currentTime);
       info.masterGain.connect(info.ctx.destination);
-      info.masterGain.gain.linearRampToValueAtTime(0.12, info.ctx.currentTime + 1.0);
+      info.masterGain.gain.linearRampToValueAtTime(0.55, info.ctx.currentTime + 1.0);
       
       info.isPlaying = true;
       info.barIndex = 0;
       
-      const bpm = 126;
+      const cat = sessionRef.current?.category || 'general';
+      const lvl = sessionRef.current?.currentLevel || 1;
+      let baseBpm = 120;
+      if (cat === 'pop') baseBpm = 124;
+      else if (cat === 'hiphop') baseBpm = 94;
+      else if (cat === 'afrobeats') baseBpm = 108;
+      else if (cat === 'artistSpotlight') baseBpm = 118;
+
+      const bpm = baseBpm + (lvl - 1) * 8;
       const stepDuration = 60 / bpm / 2;
       const barDurationMs = stepDuration * 8 * 1000; // time in ms for 8 eighth notes
       
@@ -402,22 +481,114 @@ export function GameProvider({ children }) {
     }
   }, []);
 
+  // ─── Home screen ambient music ────────────────────────────────────────────
+  const playHomeBar = useCallback(() => {
+    const info = homeAudioRef.current;
+    if (!info.ctx || !info.masterGain || !info.isPlaying) return;
+    if (info.ctx.state === 'suspended') info.ctx.resume();
+
+    const now = info.ctx.currentTime;
+    const bpm = 88;
+    const step = 60 / bpm / 2; // eighth-note duration
+
+    // C major pentatonic: C4, D4, E4, G4, A4
+    const pentatonic = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+    const patterns = [
+      [0, 2, 4, 2, 1, 3, 5, 3],
+      [0, 1, 2, 4, 3, 2, 1, 0],
+      [2, 4, 5, 4, 2, 1, 0, 2],
+      [4, 3, 2, 0, 1, 2, 3, 4],
+    ];
+    const pattern = patterns[info.barIndex % patterns.length];
+    info.barIndex = (info.barIndex + 1) % patterns.length;
+
+    for (let i = 0; i < 8; i++) {
+      const t = now + i * step;
+      const freq = pentatonic[pattern[i]];
+      const osc = info.ctx.createOscillator();
+      const gain = info.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.055, t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + step * 1.6);
+      osc.connect(gain);
+      gain.connect(info.masterGain);
+      osc.start(t);
+      osc.stop(t + step * 1.7);
+    }
+  }, []);
+
+  const startHomeMusic = useCallback(() => {
+    const info = homeAudioRef.current;
+    if (info.isPlaying) return;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      info.ctx = new Ctx();
+      info.masterGain = info.ctx.createGain();
+      info.masterGain.gain.setValueAtTime(0, info.ctx.currentTime);
+      info.masterGain.gain.linearRampToValueAtTime(0.8, info.ctx.currentTime + 2.0);
+      info.masterGain.connect(info.ctx.destination);
+      info.isPlaying = true;
+      info.barIndex = 0;
+      const bpm = 88;
+      const barMs = (60 / bpm / 2) * 8 * 1000;
+      playHomeBar();
+      info.intervalId = setInterval(playHomeBar, barMs);
+    } catch {}
+  }, [playHomeBar]);
+
+  const stopHomeMusic = useCallback(() => {
+    const info = homeAudioRef.current;
+    if (!info.isPlaying) return;
+    info.isPlaying = false;
+    if (info.intervalId) { clearInterval(info.intervalId); info.intervalId = null; }
+    if (info.masterGain && info.ctx) {
+      const now = info.ctx.currentTime;
+      try {
+        info.masterGain.gain.cancelScheduledValues(now);
+        info.masterGain.gain.setValueAtTime(info.masterGain.gain.value, now);
+        info.masterGain.gain.linearRampToValueAtTime(0, now + 0.8);
+      } catch {}
+      setTimeout(() => {
+        try { if (info.ctx && info.ctx.state !== 'closed') info.ctx.close(); } catch {}
+        info.ctx = null; info.masterGain = null;
+      }, 900);
+    }
+  }, []);
+
+  // Gameplay music effect
   useEffect(() => {
     const isGameplayActive = state.session.active;
     const isMusicEnabled = state.player.settings.music;
-    
     if (isGameplayActive && isMusicEnabled) {
       startMusic();
     } else {
       stopMusic();
     }
-    
-    return () => {
-      if (!isGameplayActive || !isMusicEnabled) {
-        stopMusic();
-      }
-    };
+    return () => { if (!isGameplayActive || !isMusicEnabled) stopMusic(); };
   }, [state.session.active, state.player.settings.music, startMusic, stopMusic]);
+
+  // Dynamic tempo update effect when category or level changes
+  useEffect(() => {
+    if (state.session.active && state.player.settings.music) {
+      updateMusicTempo();
+    }
+  }, [state.session.category, state.session.currentLevel, state.player.settings.music, updateMusicTempo]);
+
+  // Home screen music effect
+  useEffect(() => {
+    const isHome = state.activeView === 'home';
+    const isMusicEnabled = state.player.settings.music;
+    const gameActive = state.session.active;
+    if (isHome && isMusicEnabled && !gameActive) {
+      startHomeMusic();
+    } else {
+      stopHomeMusic();
+    }
+    return () => stopHomeMusic();
+  }, [state.activeView, state.player.settings.music, state.session.active, startHomeMusic, stopHomeMusic]);
 
   // Persist player
   useEffect(() => {
@@ -445,10 +616,10 @@ export function GameProvider({ children }) {
 
   // ─── Actions ───────────────────────────────────────────────────────────────
   const navigateTo = useCallback((view) => {
-    dispatch({ type: 'SET_MODAL',    modal: null });
-    dispatch({ type: 'SET_DROPDOWN', open: false });
+    dispatch({ type: 'SET_MODAL',       modal: null });
+    dispatch({ type: 'SET_DROPDOWN',    open: false });
     dispatch({ type: 'SET_NOTIF_PANEL', open: false });
-    dispatch({ type: 'SET_VIEW',     view });
+    dispatch({ type: 'SET_VIEW',        view });
   }, []);
 
   const toggleTheme = useCallback(() => {
@@ -462,6 +633,14 @@ export function GameProvider({ children }) {
   const saveName = useCallback((name) => {
     dispatch({ type: 'SET_PLAYER', player: { ...state.player, name } });
   }, [state.player]);
+
+  const saveAvatar = useCallback((avatar) => {
+    dispatch({ type: 'SET_PLAYER', player: { ...state.player, avatar } });
+  }, [state.player]);
+
+  const clearPendingRankUp = useCallback(() => {
+    dispatch({ type: 'SET_PENDING_RANKUP', data: null });
+  }, []);
 
   const markNotifsRead = useCallback(() => {
     const allIds = notifications.map(n => n.id);
@@ -514,16 +693,15 @@ export function GameProvider({ children }) {
       p.totalScore += 2;
     }
 
-    // Check rank up
+    // Detect rank-up — defer the celebration modal to the home screen
     const oldRank = getRank(oldXP);
     const newRank = getRank(p.xp);
     if (newRank.minXP > oldRank.minXP) {
-      s.rankUpDetails = {
-        oldRank: oldRank.title,
-        newRank: newRank.title,
-        currentLevel: s.currentLevel,
-      };
-      dispatch({ type: 'SET_MODAL', modal: 'rankup' });
+      s.rankUpDetails = { oldRank: oldRank.title, newRank: newRank.title, currentLevel: s.currentLevel };
+      dispatch({
+        type: 'SET_PENDING_RANKUP',
+        data: { oldRank: oldRank.title, newRank: newRank.title, stars: p.xp },
+      });
     }
 
     s.answers = [...s.answers, { correct: isCorrect, timedOut }];
@@ -619,17 +797,9 @@ export function GameProvider({ children }) {
       const newRank = getRank(p.xp);
       if (newRank.minXP > oldRank.minXP) {
         dispatch({
-          type: 'SET_SESSION',
-          session: {
-            ...state.session,
-            rankUpDetails: {
-              oldRank: oldRank.title,
-              newRank: newRank.title,
-              currentLevel: state.session.currentLevel || 1,
-            }
-          }
+          type: 'SET_PENDING_RANKUP',
+          data: { oldRank: oldRank.title, newRank: newRank.title, stars: p.xp },
         });
-        dispatch({ type: 'SET_MODAL', modal: 'rankup' });
       }
 
       dispatch({ type: 'SET_PLAYER', player: p });
@@ -655,8 +825,8 @@ export function GameProvider({ children }) {
           const g2  = ctx.createGain();
           osc.type  = waveType;
           osc.frequency.setValueAtTime(freq, ctx.currentTime);
-          g2.gain.setValueAtTime(0.09, ctx.currentTime);
-          g2.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+          g2.gain.setValueAtTime(0.3, ctx.currentTime);
+          g2.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
           osc.connect(g2); g2.connect(ctx.destination);
           osc.start(); osc.stop(ctx.currentTime + 0.35);
         }, delay);
@@ -671,18 +841,18 @@ export function GameProvider({ children }) {
     player: state.player, session: state.session,
     activeView: state.activeView, prevView: state.prevView,
     modal: state.modal, dropdownOpen: state.dropdownOpen,
-    notifOpen: state.notifOpen,
+    notifOpen: state.notifOpen, pendingRankUp: state.pendingRankUp,
     // derived
     rank, nextRankXP, xpProgress, initials, accuracy, sessionAccuracy,
     notifications, unreadCount, badges,
     // daily reward
     hasDailyReward, claimDailyReward, markPlayedToday,
     // actions
-    navigateTo, toggleTheme, updateSetting, saveName,
+    navigateTo, toggleTheme, updateSetting, saveName, saveAvatar,
     startSession, getLevelQuestions, recordAnswer,
     advanceLevel, restartLevel, endSession, markUsedIndices,
     showModal, hideModal, toggleDropdown, toggleNotifPanel,
-    markNotifsRead, playSFX,
+    markNotifsRead, playSFX, clearPendingRankUp,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

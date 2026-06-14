@@ -227,7 +227,7 @@ export default function AuthView() {
               </button>
             </form>
 
-            <Divider label="or" />
+            <Divider label="or sign in with" />
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
               {/* Google button */}
@@ -252,7 +252,7 @@ export default function AuthView() {
                 onMouseOut={e => e.currentTarget.style.background = 'var(--bg-input)'}
               >
                 <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>👤</span>
-                Sign in with Name
+                Sign In as Guest
               </button>
             </div>
 
@@ -267,15 +267,48 @@ export default function AuthView() {
         {screen === 'guest' && (
           <form onSubmit={handleGuest}>
             <ErrorMsg msg={displayError} />
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px', lineHeight: 1.6 }}>
-              Enter a name to start playing immediately. No password required!
-            </p>
-            <Input label="Your Name" value={guestName} onChange={e => setGuestName(e.target.value)} icon="👤" placeholder="What should we call you?" autoComplete="name" />
-            
-            <button type="submit" disabled={authLoading} className="btn-primary btn-block">
+
+            {/* Focused guest onboarding */}
+            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <div style={{
+                width: '72px', height: '72px', borderRadius: '50%', margin: '0 auto 16px',
+                background: 'linear-gradient(135deg,rgba(124,58,237,0.25),rgba(168,85,247,0.15))',
+                border: '2px solid rgba(168,85,247,0.4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '2rem', animation: 'ambientPulse 3s ease-in-out infinite',
+              }}>👤</div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
+                Enter the name you'd like to be known as
+              </p>
+            </div>
+
+            <div style={{ marginBottom: '24px', position: 'relative' }}>
+              <input
+                type="text"
+                value={guestName}
+                onChange={e => setGuestName(e.target.value)}
+                placeholder="Your name"
+                autoComplete="name"
+                autoFocus
+                style={{
+                  width: '100%', padding: '16px 20px', borderRadius: '14px',
+                  border: '2px solid var(--border)', background: 'var(--bg-input)',
+                  color: 'var(--text-primary)', fontSize: '1.05rem', outline: 'none',
+                  fontFamily: 'var(--font-body)', transition: 'border-color 0.2s, box-shadow 0.2s',
+                  textAlign: 'center', letterSpacing: '0.02em',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={e => { e.target.style.borderColor = 'var(--purple)'; e.target.style.boxShadow = '0 0 0 4px rgba(124,58,237,0.15)'; }}
+                onBlur={e  => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; }}
+              />
+            </div>
+
+            <button type="submit" disabled={authLoading} className="btn-primary btn-block" style={{ fontSize: '1.05rem', padding: '15px' }}>
               {authLoading ? <Spinner /> : '🎮 Join as Guest'}
             </button>
-            <button type="button" onClick={() => go('login')} className="btn-ghost btn-block" style={{ marginTop: '12px' }}>← Back to Email Login</button>
+            <button type="button" onClick={() => go('login')} className="btn-ghost btn-block" style={{ marginTop: '12px' }}>
+              ← Back to Sign In
+            </button>
           </form>
         )}
 

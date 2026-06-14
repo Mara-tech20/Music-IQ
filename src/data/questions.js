@@ -43,15 +43,16 @@ export const CATEGORIES = {
     gameGradient: 'linear-gradient(135deg,rgba(146,64,14,0.7),rgba(6,95,70,0.5))',
     timerColor: '#f59e0b',
   },
-  rock: {
-    id: 'rock', name: 'Rock Music', emoji: '🎸', shortName: 'Rock',
-    difficulty: 'Medium', questionCount: 20,
-    description: 'Classic rock, metal, punk and alternative anthems',
-    colorA: '#b91c1c', colorB: '#0f172a',
-    gradient: 'linear-gradient(135deg, #7f1d1d, #0f172a)',
-    glow: 'rgba(185,28,28,0.5)', barColor: 'linear-gradient(90deg,#b91c1c,#0f172a)',
-    gameGradient: 'linear-gradient(135deg,rgba(127,29,29,0.7),rgba(15,23,42,0.5))',
-    timerColor: '#ef4444',
+  artistSpotlight: {
+    id: 'artistSpotlight', name: 'Artist Spotlight', emoji: '🕺', shortName: 'MJ Spotlight',
+    difficulty: 'Easy', questionCount: 20,
+    description: 'Michael Jackson — the King of Pop and his legendary legacy',
+    subtitle: 'Michael Jackson',
+    colorA: '#d97706', colorB: '#7c3aed',
+    gradient: 'linear-gradient(135deg, #78350f, #4c1d95)',
+    glow: 'rgba(217,119,6,0.6)', barColor: 'linear-gradient(90deg,#d97706,#7c3aed)',
+    gameGradient: 'linear-gradient(135deg,rgba(120,53,15,0.7),rgba(76,29,149,0.5))',
+    timerColor: '#f59e0b',
   },
 };
 
@@ -260,33 +261,33 @@ export const QUESTIONS = {
     { q:'Mr Eazi\'s viral song "Pour Me Water" became popular in which year?', a:['2013','2015','2017','2019'], correct:1 },
     { q:'CKay\'s "Love Nwantiti" reached the top 10 in how many countries?', a:['Over 50','Over 70','Over 90','Over 100'], correct:2 },
   ],
-  rock: [
+  artistSpotlight: [
     // Level 1-3 Easy pool (first 16 questions)
-    { q:'Which of these is a famous rock band?', a:['A microwave','Queen','A bicycle','A calculator'], correct:1 },
-    { q:'Which instrument is most iconic in rock music?', a:['Violin','Electric Guitar','Flute','Harp'], correct:1 },
-    { q:'What do rock singers use to amplify their voice?', a:['Headphones','Microphone','Speaker','Turntable'], correct:1 },
-    { q:'Which of these is a famous rock subgenre?', a:['Heavy Metal','Calculator Beat','Word Rap','Spelling Jazz'], correct:0 },
+    { q:'Michael Jackson is known as the King of what?', a:['Rock','Jazz','Pop','Soul'], correct:2 },
+    { q:'Which country was Michael Jackson from?', a:['UK','Australia','Canada','USA'], correct:3 },
+    { q:'Michael Jackson was part of which famous family group?', a:['The Supremes','The Temptations','The Osmonds','The Jackson 5'], correct:3 },
+    { q:'Which Michael Jackson album is the best-selling of all time?', a:['Bad','Dangerous','Off the Wall','Thriller'], correct:3 },
 
-    { q:'Who was the lead singer of Queen?', a:['Freddie Mercury','John Lennon','Mick Jagger','Elvis Presley'], correct:0 },
-    { q:'Which rock band released "Stairway to Heaven"?', a:['The Beatles','Led Zeppelin','AC/DC','Pink Floyd'], correct:1 },
-    { q:'Who is known as the "King of Rock and Roll"?', a:['Michael Jackson','Prince','Elvis Presley','Chuck Berry'], correct:2 },
-    { q:'Which band released the album "The Dark Side of the Moon"?', a:['Pink Floyd','Queen','The Who','The Doors'], correct:0 },
+    { q:'What is the name of Michael Jackson\'s iconic dance move?', a:['The Robot','The Shuffle','The Moonwalk','The Twist'], correct:2 },
+    { q:'Michael Jackson wore a sparkly glove on which hand?', a:['Both hands','Left hand','Right hand','Neither'], correct:2 },
+    { q:'What was the name of Michael Jackson\'s famous estate?', a:['Graceland','Neverland Ranch','Paisley Park','Hearst Castle'], correct:1 },
+    { q:'The "Thriller" music video was released in which decade?', a:['1970s','1980s','1990s','2000s'], correct:1 },
 
-    { q:'What is the lead instrument in Jimi Hendrix\'s music?', a:['Piano','Electric Guitar','Drums','Saxophone'], correct:1 },
-    { q:'Which rock band is famous for the song "Smells Like Teen Spirit"?', a:['Nirvana','Pearl Jam','Soundgarden','Alice in Chains'], correct:0 },
-    { q:'Who is the guitarist of the band AC/DC known for wearing a schoolboy uniform?', a:['Slash','Angus Young','Keith Richards','Jimmy Page'], correct:1 },
-    { q:'Which city did The Beatles come from?', a:['London','Liverpool','Manchester','Birmingham'], correct:1 },
+    { q:'What was the name of Michael Jackson\'s pet chimpanzee?', a:['Waffles','Biscuit','Sparky','Bubbles'], correct:3 },
+    { q:'Michael Jackson was born in which US state?', a:['California','New York','Texas','Indiana'], correct:3 },
+    { q:'Which song contains the lyric "Billie Jean is not my lover"?', a:['Beat It','Smooth Criminal','Billie Jean','Thriller'], correct:2 },
+    { q:'Michael Jackson\'s first solo number one hit was which song?', a:['Thriller','Billie Jean','Beat It','Don\'t Stop \'Til You Get Enough'], correct:3 },
 
-    { q:'Who sang "Purple Haze"?', a:['Jimi Hendrix','Eric Clapton','Jimmy Page','Jeff Beck'], correct:0 },
-    { q:'Which band released the song "Sweet Child O\' Mine"?', a:['Guns N\' Roses','Aerosmith','Bon Jovi','Metallica'], correct:0 },
-    { q:'Who is the lead singer of The Rolling Stones?', a:['Robert Plant','Mick Jagger','Steven Tyler','Ozzy Osbourne'], correct:1 },
-    { q:'Which rock star was known as "The Prince of Darkness"?', a:['Alice Cooper','Ozzy Osbourne','Gene Simmons','Rob Halford'], correct:1 },
+    { q:'Who directed the iconic "Thriller" music video?', a:['Steven Spielberg','Tim Burton','John Landis','Martin Scorsese'], correct:2 },
+    { q:'Michael Jackson first performed the moonwalk publicly on which TV special?', a:['The Ed Sullivan Show','American Bandstand','The Tonight Show','Motown 25'], correct:3 },
+    { q:'What colour jacket did Michael Jackson wear in the "Thriller" video?', a:['Black','White','Blue','Red'], correct:3 },
+    { q:'Which Michael Jackson song features the lyric "Just beat it"?', a:['Billie Jean','Dangerous','Beat It','Bad'], correct:2 },
 
     // Normal pool (remaining questions)
-    { q:'Which album is Nirvana\'s breakthrough release from 1991?', a:['In Utero','Bleach','Nevermind','Incesticide'], correct:2 },
-    { q:'Who is the drummer for the rock band Foo Fighters and former Nirvana drummer?', a:['Taylor Hawkins','Dave Grohl','Chad Smith','Travis Barker'], correct:1 },
-    { q:'What year was the Woodstock music festival held?', a:['1967','1968','1969','1970'], correct:2 },
-    { q:'Which band released the heavy metal album "Master of Puppets"?', a:['Iron Maiden','Judas Priest','Megadeth','Metallica'], correct:3 }
+    { q:'How many Grammy Awards did Michael Jackson win in his career?', a:['8','13','17','21'], correct:1 },
+    { q:'Michael Jackson\'s "Bad" album was released in which year?', a:['1983','1985','1987','1989'], correct:2 },
+    { q:'Which Michael Jackson song begins with "Annie are you OK"?', a:['Thriller','Billie Jean','Beat It','Smooth Criminal'], correct:3 },
+    { q:'Michael Jackson co-wrote "We Are the World" with which artist?', a:['Quincy Jones','Lionel Richie','Prince','Stevie Wonder'], correct:1 },
   ],
 };
 

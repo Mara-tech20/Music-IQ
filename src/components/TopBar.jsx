@@ -128,9 +128,9 @@ export default function TopBar() {
           <button
             onClick={() => { toggleDropdown(!dropdownOpen); toggleNotifPanel(false); }}
             style={{
-              width: '40px', height: '40px', borderRadius: 'var(--r-full)',
+              width: '40px', height: '40px', borderRadius: '10px',
               background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
-              color: '#fff', fontWeight: 'bold', border: '2px solid var(--bg-topbar)',
+              color: '#fff', fontWeight: 'bold', border: '3px solid var(--bg-topbar)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '0.9rem', transition: 'transform 0.2s',
             }}
