@@ -63,7 +63,7 @@ export default function HomeView() {
         <div className="glass-card home-rank-card" style={{ padding: isMobile ? '22px 18px' : '20px', minWidth: '300px', flex: 1, maxWidth: '400px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
             <div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Rank</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: isMobile ? '6px' : '2px' }}>Current Rank</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--gold)' }}>{rank.title}</span>
                 <button 
@@ -128,7 +128,8 @@ export default function HomeView() {
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 animation: `slideInUp 0.5s ease backwards`,
                 animationDelay: `${i * 0.1}s`,
-                position: 'relative'
+                position: 'relative',
+                gridColumn: isMobile && cat.id === 'artistSpotlight' ? 'span 2' : 'auto',
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
@@ -207,7 +208,11 @@ export default function HomeView() {
             border: '2px dashed rgba(124,58,237,0.4)',
             background: 'rgba(124,58,237,0.04)',
             display: 'flex', flexDirection: 'column', justifyContent: 'center',
-            alignItems: 'center', minHeight: '220px', gap: '16px',
+            alignItems: 'center',
+            minHeight: isMobile ? 'unset' : '220px',
+            gap: isMobile ? '10px' : '16px',
+            padding: isMobile ? '18px 16px' : '0',
+            gridColumn: isMobile ? 'span 2' : 'auto',
             transition: 'all 0.3s ease',
             animation: `slideInUp 0.5s ease backwards`,
             animationDelay: `${CATEGORY_LIST.length * 0.1}s`,
@@ -224,18 +229,20 @@ export default function HomeView() {
           }}
         >
           <div style={{
-            width: '64px', height: '64px', borderRadius: '50%',
+            width: isMobile ? '48px' : '64px', height: isMobile ? '48px' : '64px',
+            borderRadius: '50%',
             background: 'rgba(124,58,237,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '2rem',
+            fontSize: isMobile ? '1.5rem' : '2rem',
             border: '2px dashed rgba(124,58,237,0.4)',
-            animation: 'ambientPulse 3s ease-in-out infinite'
+            animation: 'ambientPulse 3s ease-in-out infinite',
+            flexShrink: 0,
           }}>✨</div>
-          <div style={{ textAlign: 'center', padding: '0 24px' }}>
-            <h4 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '6px', fontFamily: 'var(--font-display)' }}>
+          <div style={{ textAlign: 'center', padding: isMobile ? '0 8px' : '0 24px' }}>
+            <h4 style={{ fontSize: isMobile ? '1rem' : '1.2rem', fontWeight: 800, marginBottom: isMobile ? '4px' : '6px', fontFamily: 'var(--font-display)' }}>
               Request a Category
             </h4>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.4 }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: isMobile ? '0.82rem' : '0.9rem', lineHeight: 1.4 }}>
               Don't see your favourite genre? Suggest it and we'll add it!
             </p>
           </div>

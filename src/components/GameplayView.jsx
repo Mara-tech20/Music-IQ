@@ -197,6 +197,7 @@ export default function GameplayView() {
   if (!questions.length) return null;
 
   const currentQ = questions[currentIdx];
+  if (!currentQ) return null;
   const progressPercent = ((currentIdx) / questions.length) * 100;
 
   return (
@@ -241,53 +242,60 @@ export default function GameplayView() {
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '800px' }}>
         {/* Header stats */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobile ? '12px' : '24px' }}>
-          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)' }}>
-            Level {session.currentLevel}
-          </div>
-          <div style={{ position: 'relative' }}>
-            <div style={{
-              width: '60px', height: '60px', borderRadius: '50%',
-              background: timeLeft <= 5 ? 'rgba(239,68,68,0.15)' : 'rgba(0,0,0,0.55)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.5rem', fontWeight: 900,
-              border: `4px solid ${timeLeft <= 5 ? 'var(--red)' : category.timerColor}`,
-              color: timeLeft <= 5 ? 'var(--red)' : '#ffffff',
-              textShadow: '0 1px 4px rgba(0,0,0,0.8)',
-              animation: timeLeft <= 5 ? 'timerPulseRed 1s infinite, timerUrgent 1s infinite' : 'none',
-              transition: 'all 0.3s ease',
-              boxShadow: `0 0 0 2px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.2)`
-            }}>
-              {timeLeft}
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          justifyContent: isMobile ? 'space-between' : 'space-between',
+          position: isMobile ? 'relative' : 'static',
+          marginBottom: isMobile ? '12px' : '24px',
+        }}>
+          {/* Left: Level */}
+          <div style={{ flex: isMobile ? 1 : 'none' }}>
+            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)', display: 'inline-block' }}>
+              Level {session.currentLevel}
             </div>
-            {showXP && selectedAns === null && (
-              <div style={{
-                position: 'absolute',
-                top: '-30px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                color: 'var(--gold)',
-                fontWeight: 'bold',
-                fontSize: '1.3rem',
-                textShadow: '0 2px 6px rgba(0,0,0,0.5)',
-                pointerEvents: 'none',
-                animation: 'floatingXP 1.5s ease-out forwards',
-                whiteSpace: 'nowrap',
-                zIndex: 10
-              }}>
-                +{xpGained} ⭐
-              </div>
-            )}
-            <style>{`
-              @keyframes floatingXP {
-                0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
-                20% { opacity: 1; transform: translate(-50%, -15px) scale(1.1); }
-                80% { opacity: 1; transform: translate(-50%, -25px) scale(1); }
-                100% { opacity: 0; transform: translate(-50%, -35px) scale(0.9); }
-              }
-            `}</style>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+
+          {/* Center: Timer — absolutely centered on mobile so sides can't shift it */}
+          <div style={isMobile ? { position: 'absolute', left: '50%', transform: 'translateX(-50%)' } : {}}>
+            <div style={{ position: 'relative' }}>
+              <div style={{
+                width: '60px', height: '60px', borderRadius: '50%',
+                background: timeLeft <= 5 ? 'rgba(239,68,68,0.15)' : 'rgba(0,0,0,0.55)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '1.5rem', fontWeight: 900,
+                border: `4px solid ${timeLeft <= 5 ? 'var(--red)' : category.timerColor}`,
+                color: timeLeft <= 5 ? 'var(--red)' : '#ffffff',
+                textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+                animation: timeLeft <= 5 ? 'timerPulseRed 1s infinite, timerUrgent 1s infinite' : 'none',
+                transition: 'all 0.3s ease',
+                boxShadow: `0 0 0 2px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.2)`
+              }}>
+                {timeLeft}
+              </div>
+              {showXP && selectedAns === null && (
+                <div style={{
+                  position: 'absolute', top: '-30px', left: '50%',
+                  transform: 'translateX(-50%)',
+                  color: 'var(--gold)', fontWeight: 'bold', fontSize: '1.3rem',
+                  textShadow: '0 2px 6px rgba(0,0,0,0.5)', pointerEvents: 'none',
+                  animation: 'floatingXP 1.5s ease-out forwards', whiteSpace: 'nowrap', zIndex: 10,
+                }}>
+                  +{xpGained} ⭐
+                </div>
+              )}
+              <style>{`
+                @keyframes floatingXP {
+                  0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
+                  20% { opacity: 1; transform: translate(-50%, -15px) scale(1.1); }
+                  80% { opacity: 1; transform: translate(-50%, -25px) scale(1); }
+                  100% { opacity: 0; transform: translate(-50%, -35px) scale(0.9); }
+                }
+              `}</style>
+            </div>
+          </div>
+
+          {/* Right: Score + Speaker */}
+          <div style={{ flex: isMobile ? 1 : 'none', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
             <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)' }}>
               Score: {session.score}
             </div>
