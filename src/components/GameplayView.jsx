@@ -244,19 +244,18 @@ export default function GameplayView() {
         {/* Header stats */}
         <div style={{
           display: 'flex', alignItems: 'center',
-          justifyContent: isMobile ? 'space-between' : 'space-between',
-          position: isMobile ? 'relative' : 'static',
+          position: 'relative',
           marginBottom: isMobile ? '12px' : '24px',
         }}>
           {/* Left: Level */}
-          <div style={{ flex: isMobile ? 1 : 'none' }}>
+          <div style={{ flex: 1 }}>
             <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)', display: 'inline-block' }}>
               Level {session.currentLevel}
             </div>
           </div>
 
-          {/* Center: Timer — absolutely centered on mobile so sides can't shift it */}
-          <div style={isMobile ? { position: 'absolute', left: '50%', transform: 'translateX(-50%)' } : {}}>
+          {/* Center: Timer — absolutely centered so neither side can push it off */}
+          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
             <div style={{ position: 'relative' }}>
               <div style={{
                 width: '60px', height: '60px', borderRadius: '50%',
@@ -295,7 +294,7 @@ export default function GameplayView() {
           </div>
 
           {/* Right: Score + Speaker */}
-          <div style={{ flex: isMobile ? 1 : 'none', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
             <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)' }}>
               Score: {session.score}
             </div>
