@@ -280,3 +280,24 @@ h1,h2,h3,h4 { font-family: var(--font-display); line-height: 1.2; font-weight: 7
 @media (max-width: 480px) {
   .btn-primary, .btn-secondary, .btn-ghost { padding: 12px 18px; font-size: 0.88rem; }
 }
+
+@media (max-width: 768px) {
+  /* Prevent any element from causing horizontal scroll */
+  body { overflow-x: hidden; }
+
+  /* Taller topbar to fit 2-row mobile layout */
+  :root { --topbar-h: 116px; }
+
+  /* HomeView: shrink welcome heading & rank card */
+  .home-welcome-heading { font-size: 1.8rem !important; }
+  .home-rank-card { min-width: unset !important; width: 100% !important; }
+
+  /* AuthView: tighten card padding on small screens */
+  .auth-card { padding: 28px 20px !important; }
+
+  /* Modals: reduce inner padding */
+  .modal-inner { padding: 24px 18px !important; }
+
+  /* ProfileView: single-column avatar grid on very small screens */
+  .avatar-grid { grid-template-columns: repeat(4, 1fr) !important; }
+}

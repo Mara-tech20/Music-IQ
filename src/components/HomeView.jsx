@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { CATEGORY_LIST } from '../data/questions';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 export default function HomeView() {
   const { player, rank, xpProgress, startSession, playSFX, showModal, pendingRankUp } = useGame();
+  const isMobile = useIsMobile();
 
   // Show the deferred rank-up celebration when returning to home
   useEffect(() => {
@@ -40,26 +42,17 @@ export default function HomeView() {
       .cat-card .cat-emoji {
         display: inline-block;
         transition: filter 0.3s ease;
-        animation: catEmojiDance 3s ease-in-out infinite;
-        will-change: transform;
-      }
-      @keyframes catEmojiDance {
-        0%   { transform: translateY(0) scale(1) rotate(-3deg); }
-        25%  { transform: translateY(-6px) scale(1.06) rotate(3deg); }
-        50%  { transform: translateY(0) scale(1) rotate(-3deg); }
-        75%  { transform: translateY(-6px) scale(1.06) rotate(3deg); }
-        100% { transform: translateY(0) scale(1) rotate(-3deg); }
       }
       .cat-card:hover .cat-emoji {
         filter: drop-shadow(0 6px 22px currentColor) brightness(1.25);
       }
     `}</style>
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', animation: 'fadeIn 0.4s ease' }}>
-      
+    <div style={{ padding: isMobile ? '20px 16px' : '24px', maxWidth: '1200px', margin: '0 auto', animation: 'fadeIn 0.4s ease' }}>
+
       {/* Welcome & Stats Section */}
-      <section style={{ marginBottom: '40px', display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center', justifyContent: 'space-between' }}>
+      <section style={{ marginBottom: isMobile ? '32px' : '40px', display: 'flex', flexWrap: 'wrap', gap: isMobile ? '20px' : '24px', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h2 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+          <h2 className="home-welcome-heading" style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
             Welcome back, <span style={{ background: 'linear-gradient(135deg, #7c3aed, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{player.name}</span>!
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
@@ -67,7 +60,7 @@ export default function HomeView() {
           </p>
         </div>
 
-        <div className="glass-card" style={{ padding: '20px', minWidth: '300px', flex: 1, maxWidth: '400px' }}>
+        <div className="glass-card home-rank-card" style={{ padding: isMobile ? '22px 18px' : '20px', minWidth: '300px', flex: 1, maxWidth: '400px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
             <div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Rank</div>
@@ -117,17 +110,17 @@ export default function HomeView() {
 
       {/* Categories Section */}
       <section>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: isMobile ? '20px' : '24px' }}>
           <div>
-            <h3 style={{ fontSize: '1.8rem', marginBottom: '4px' }}>Select Category</h3>
-            <p style={{ color: 'var(--text-secondary)' }}>Choose a genre to start playing</p>
+            <h3 style={{ fontSize: isMobile ? '1.4rem' : '1.8rem', marginBottom: '6px' }}>Select Category</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: isMobile ? '0.9rem' : '1rem' }}>Choose a genre to start playing</p>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobile ? '12px' : '24px' }}>
           {CATEGORY_LIST.map((cat, i) => (
-            <div 
-              key={cat.id} 
+            <div
+              key={cat.id}
               className="glass-card cat-card"
               onClick={() => handleStart(cat.id)}
               style={{
@@ -146,8 +139,8 @@ export default function HomeView() {
                 e.currentTarget.style.boxShadow = 'var(--shadow-card)';
               }}
             >
-              <div style={{ 
-                height: '160px', background: cat.gradient, 
+              <div style={{
+                height: isMobile ? '110px' : '160px', background: cat.gradient,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '68px', position: 'relative', overflow: 'hidden'
               }}>
@@ -176,17 +169,17 @@ export default function HomeView() {
                   style={{
                     filter: `drop-shadow(0 4px 16px ${cat.glow})`,
                     position: 'relative', zIndex: 1,
-                    fontSize: '72px',
+                    fontSize: isMobile ? '44px' : '72px',
                     animationDelay: `${i * 0.15}s`,
                   }}
                 >{cat.emoji}</span>
               </div>
               
-              <div style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <h4 style={{ fontSize: '1.4rem' }}>{cat.name}</h4>
-                  <span style={{ 
-                    fontSize: '0.75rem', padding: '4px 10px', borderRadius: 'var(--r-full)',
+              <div style={{ padding: isMobile ? '12px 10px 14px' : '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isMobile ? '6px' : '8px', gap: '6px' }}>
+                  <h4 style={{ fontSize: isMobile ? '0.95rem' : '1.4rem', lineHeight: 1.3 }}>{cat.name}</h4>
+                  <span style={{
+                    fontSize: isMobile ? '0.65rem' : '0.75rem', padding: isMobile ? '3px 7px' : '4px 10px', borderRadius: 'var(--r-full)', flexShrink: 0,
                     background: cat.difficulty === 'Easy' ? 'rgba(16,185,129,0.2)' : cat.difficulty === 'Medium' ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)',
                     color: cat.difficulty === 'Easy' ? 'var(--green)' : cat.difficulty === 'Medium' ? 'var(--gold)' : 'var(--red)',
                     fontWeight: 600
@@ -194,12 +187,14 @@ export default function HomeView() {
                     {cat.difficulty}
                   </span>
                 </div>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px', minHeight: '40px' }}>
-                  {cat.description}
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  <span>{cat.questionCount}+ Questions</span>
-                  <span>Lv. {player.categoryStats[cat.id]?.bestLevel || 0} Best</span>
+                {!isMobile && (
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px', minHeight: '40px' }}>
+                    {cat.description}
+                  </p>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: isMobile ? '0.75rem' : '0.85rem' }}>
+                  <span>{cat.questionCount}+</span>
+                  <span>Lv. {player.categoryStats[cat.id]?.bestLevel || 0}</span>
                 </div>
               </div>
             </div>
