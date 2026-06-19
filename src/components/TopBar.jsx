@@ -134,7 +134,7 @@ export default function TopBar() {
             style={{
               position: 'fixed', inset: 0, top: 'var(--topbar-h)',
               zIndex: 98,
-              background: 'rgba(0,0,0,0.72)',
+              background: 'rgba(0,0,0,0.5)',
               backdropFilter: 'blur(2px)',
               animation: 'fadeIn 0.2s ease',
             }}

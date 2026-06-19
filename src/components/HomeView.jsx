@@ -261,10 +261,10 @@ export default function HomeView() {
         <div style={{
           position: 'fixed', inset: 0, zIndex: 1100,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)',
+          background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)',
           animation: 'modalOverlayIn 0.3s ease'
         }}>
-          <div className="glass-card" style={{
+          <div className="glass-modal" style={{
             width: '90%', maxWidth: '480px', padding: '36px 30px',
             animation: 'modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
             position: 'relative', overflow: 'hidden'

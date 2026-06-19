@@ -135,13 +135,13 @@ export default function Modals() {
     <div style={{
       position: 'fixed', inset: 0, zIndex: 1000,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)',
+      background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)',
       animation: 'modalOverlayIn 0.3s ease',
     }}>
 
       {/* ── WIN ── */}
       {modal === 'win' && (
-        <div className="glass-card" style={{
+        <div className="glass-modal" style={{
           width: '90%', maxWidth: '400px', padding: '40px 30px', textAlign: 'center',
           animation: 'modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
         }}>
@@ -177,7 +177,7 @@ export default function Modals() {
 
       {/* ── LOSE ── */}
       {modal === 'lose' && (
-        <div className="glass-card" style={{
+        <div className="glass-modal" style={{
           width: '90%', maxWidth: '400px', padding: '40px 30px', textAlign: 'center',
           animation: 'modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
           border: '1px solid rgba(239,68,68,0.3)',
@@ -205,7 +205,7 @@ export default function Modals() {
 
       {/* ── END CONFIRM ── */}
       {modal === 'endconfirm' && (
-        <div className="glass-card" style={{
+        <div className="glass-modal" style={{
           width: '90%', maxWidth: '400px', padding: '40px 30px', textAlign: 'center',
           animation: 'modalSlideUp 0.3s ease',
         }}>
@@ -226,7 +226,7 @@ export default function Modals() {
 
       {/* ── RANK SYSTEM ── */}
       {modal === 'rankSystem' && (
-        <div className="glass-card" style={{
+        <div className="glass-modal" style={{
           width: '95%', maxWidth: '480px', padding: '30px 24px',
           animation: 'modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
           maxHeight: '85vh', overflowY: 'auto',
@@ -275,7 +275,7 @@ export default function Modals() {
 
       {/* ── RANK UP CELEBRATION (shown on home screen) ── */}
       {modal === 'rankup' && (
-        <div className="glass-card" style={{
+        <div className="glass-modal" style={{
           width: '92%', maxWidth: '480px',
           padding: showCardPreview ? '24px 22px' : '36px 28px',
           textAlign: 'center',
@@ -427,7 +427,7 @@ export default function Modals() {
 
       {/* ── LOGOUT CONFIRM ── */}
       {modal === 'logoutConfirm' && (
-        <div className="glass-card" style={{
+        <div className="glass-modal" style={{
           width: '90%', maxWidth: '400px', padding: '40px 30px', textAlign: 'center',
           animation: 'modalSlideUp 0.3s ease',
         }}>
