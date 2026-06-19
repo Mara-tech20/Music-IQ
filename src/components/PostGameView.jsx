@@ -465,22 +465,6 @@ export default function PostGameView() {
           </div>
         </section>
 
-        {/* ── BOTTOM BUTTONS ── */}
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', animation: 'slideInUp 0.5s ease 0.3s both' }}>
-          <button className="btn-primary" onClick={handlePlayAgain} style={{ flex: '1 1 200px', fontSize: '1rem', padding: '16px 20px' }}>
-            🔄 &nbsp;Restart Game
-          </button>
-          <button className="btn-secondary" onClick={handleHome} style={{ flex: '1 1 160px', fontSize: '1rem', padding: '16px 20px' }}>
-            🏠 &nbsp;Back to Home
-          </button>
-          <button
-            className="btn-ghost"
-            onClick={handleOpenShareModal}
-            style={{ flex: '1 1 100%', fontSize: '1rem', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-          >
-            📤 &nbsp;View Summary Card
-          </button>
-        </div>
 
       </div>
     </>
