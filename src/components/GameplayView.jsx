@@ -241,21 +241,22 @@ export default function GameplayView() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '800px' }}>
-        {/* Header stats */}
+        {/* Header stats — 1fr|auto|1fr grid keeps timer pinned to true centre */}
         <div style={{
-          display: 'flex', alignItems: 'center',
-          position: 'relative',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
+          alignItems: 'center',
           marginBottom: isMobile ? '12px' : '24px',
         }}>
           {/* Left: Level */}
-          <div style={{ flex: 1 }}>
+          <div>
             <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)', display: 'inline-block' }}>
               Level {session.currentLevel}
             </div>
           </div>
 
-          {/* Center: Timer — absolutely centered so neither side can push it off */}
-          <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+          {/* Center: Timer */}
+          <div>
             <div style={{ position: 'relative' }}>
               <div style={{
                 width: '60px', height: '60px', borderRadius: '50%',
@@ -294,7 +295,7 @@ export default function GameplayView() {
           </div>
 
           {/* Right: Score + Speaker */}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
             <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)' }}>
               Score: {session.score}
             </div>

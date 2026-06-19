@@ -190,6 +190,15 @@ const GameContext = createContext(null);
 
 export function GameProvider({ children }) {
   const saved = loadPlayer();
+
+  // Seed display name from auth if player hasn't customised it yet (first name only)
+  if (saved.name === 'Music Quizzer') {
+    try {
+      const authUser = JSON.parse(localStorage.getItem('musiciq_auth') || 'null');
+      if (authUser?.name) saved.name = authUser.name.trim().split(/\s+/)[0];
+    } catch {}
+  }
+
   const [state, dispatch] = useReducer(gameReducer, {
     player: saved,
     session: defaultSession(),
