@@ -101,7 +101,7 @@ function AvatarModal({ current, onSelect, onClose }) {
     <div style={{
       position: 'fixed', inset: 0, zIndex: 1100,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)',
+      background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(10px)',
       animation: 'modalOverlayIn 0.3s ease',
     }}>
       <div className="glass-card" style={{
@@ -448,7 +448,7 @@ export default function ProfileView() {
 
       {/* ── NAME EDIT MODAL ── */}
       {showNameModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', animation: 'modalOverlayIn 0.3s ease' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)', animation: 'modalOverlayIn 0.3s ease' }}>
           <div className="glass-card" style={{ width: '90%', maxWidth: '440px', padding: '32px 28px', animation: 'modalSlideUp 0.4s cubic-bezier(0.175,0.885,0.32,1.275)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>✏️ Change Display Name</h3>
@@ -471,7 +471,7 @@ export default function ProfileView() {
 
       {/* ── PASSWORD MODAL ── */}
       {showPwModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', animation: 'modalOverlayIn 0.3s ease' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)', animation: 'modalOverlayIn 0.3s ease' }}>
           <div className="glass-card" style={{ width: '90%', maxWidth: '460px', padding: '32px 28px', animation: 'modalSlideUp 0.4s cubic-bezier(0.175,0.885,0.32,1.275)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>🔐 Change Password</h3>
