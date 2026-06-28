@@ -270,19 +270,3 @@ Controls for the admin environment itself.
 
 ---
 
-## Out of Scope (MVP)
-
-- Role-based access control (RBAC) — single access level for now
-- Real-time push notifications to players
-- A/B testing of question sets
-- Automated or AI-assisted content moderation
-- Revenue or monetisation tracking
-- Multi-admin collaboration (comments, task assignments)
-
----
-
-## Open Questions
-
-- [ ] Will the admin dashboard be a separate codebase or a protected route within the existing Vite/React app?
-- [ ] What is the source of truth for question data in MVP — a JSON file, a database, or both?
-- [ ] Who owns admin access in the initial rollout — developer only, or also product?
