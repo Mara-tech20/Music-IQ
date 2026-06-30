@@ -461,6 +461,7 @@ Admin Dashboard
 
 ---
 
+<<<<<<< HEAD
 ## Out of Scope (MVP)
 
 - Role-based access control (RBAC) — single access level for now
@@ -481,3 +482,5 @@ Admin Dashboard
 - [ ] What AI provider/model will power the batch generation feature in production?
 - [ ] Should the Gameplay page default to "Today" or "Last 7 days" for its session table?
 - [ ] Should the Global Leaderboard be a separate nav item or remain a sub-view of Gameplay only?
+=======
+>>>>>>> 74c090f066a4c3e2da6272d095850c1148a14538
