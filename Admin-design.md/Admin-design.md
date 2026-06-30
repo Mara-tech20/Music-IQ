@@ -2,7 +2,7 @@
 ## Design Specification
 
 **Status:** Discovery → Design → Build
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** June 2026
 **Audience:** Internal — Design, Engineering
 
@@ -75,6 +75,7 @@ Inherits from the player app type system.
 | Badges | `6px` |
 | Input fields | `8px` |
 | Modals | `16px` |
+| Drawers | `0` (flush with screen edge) |
 | Table rows | `0` (flat within container) |
 
 ---
@@ -123,21 +124,21 @@ The sidebar groups navigation into logical sections with dividers.
 ```
 Music IQ Admin
 ─────────────────
-  Overview
+  OVERVIEW
+  Dashboard
 
   CONTENT
-  Questions
   Categories
+  Question Management
+
+  GAMEPLAY
+  Gameplay
 
   PLAYERS
-  Player List
-  Category Requests
-
-  DATA
-  Leaderboard & Stats
+  User Management
 
   PLATFORM
-  Announcements
+  Team Management
   Settings
 ─────────────────
   Logout
@@ -154,7 +155,7 @@ Music IQ Admin
 
 ### Stat Cards
 
-Used on the Overview page to show key platform metrics.
+Used on the Dashboard, Categories, Question Management, Gameplay, and Category Questions pages.
 
 ```
 ┌─────────────────────────────┐
@@ -174,13 +175,13 @@ Used on the Overview page to show key platform metrics.
 
 ### Data Tables
 
-The primary component for player lists, question lists, request queues, etc.
+The primary component for player lists, question lists, batch lists, gameplay sessions, etc.
 
 **Structure:**
 
 ```
 ┌── TABLE HEADER ────────────────────────────────────────────┐
-│  Search input  │  Filter dropdowns  │  Bulk action button  │
+│  Search input  │  Filter dropdowns  │  Export  │  Action   │
 └────────────────────────────────────────────────────────────┘
 ┌─────────┬────────────────────┬───────────┬─────────────────┐
 │  Check  │  Column A          │  Column B │  Actions        │
@@ -202,6 +203,7 @@ The primary component for player lists, question lists, request queues, etc.
 - Checkbox column: `44px` wide
 - Actions column: Right-aligned; icon buttons with tooltips on hover
 - Pagination: Below the table, right-aligned page controls, `12px` from table edge
+- Export button: In the table header bar, secondary button style, always visible
 
 ---
 
@@ -213,6 +215,8 @@ Used throughout tables and detail views to communicate status at a glance.
 |---|---|---|---|
 | Active | `rgba(34,197,94,0.15)` | `#22c55e` | Active |
 | Draft | `rgba(245,158,11,0.15)` | `#f59e0b` | Draft |
+| Published | `rgba(34,197,94,0.15)` | `#22c55e` | Published |
+| Archived | `rgba(239,68,68,0.10)` | `#ef4444` | Archived |
 | Retired | `rgba(239,68,68,0.10)` | `#ef4444` | Retired |
 | Pending | `rgba(245,158,11,0.15)` | `#f59e0b` | Pending |
 | Reviewed | `rgba(59,130,246,0.15)` | `#3b82f6` | Reviewed |
@@ -228,8 +232,8 @@ Used throughout tables and detail views to communicate status at a glance.
 
 | Variant | Background | Text | Border | Usage |
 |---|---|---|---|---|
-| Primary | `--admin-accent` | White | None | Confirm, Save, Publish |
-| Secondary | Transparent | `--admin-text-primary` | `1px --admin-border` | Cancel, Back |
+| Primary | `--admin-accent` | White | None | Confirm, Save, Publish, Generate |
+| Secondary | Transparent | `--admin-text-primary` | `1px --admin-border` | Cancel, Back, Export |
 | Danger | `rgba(239,68,68,0.15)` | `#ef4444` | `1px rgba(239,68,68,0.3)` | Delete, Deactivate |
 | Ghost | Transparent | `--admin-accent` | None | Subtle actions |
 | Icon-only | Transparent | `--admin-text-secondary` | None | Table inline actions |
@@ -244,7 +248,7 @@ Used throughout tables and detail views to communicate status at a glance.
 
 ### Form Inputs
 
-Used in question editor, category editor, announcement composer, etc.
+Used in the AI Batch Generation drawer, question editor, category editor, etc.
 
 | Property | Value |
 |---|---|
@@ -259,16 +263,42 @@ Used in question editor, category editor, announcement composer, etc.
 
 - Textarea: Same styles, min-height `100px`, `padding: 12px`
 - Select dropdown: Matching style with a custom chevron icon
+- Number input: Same as text input; show increment/decrement controls on focus
 - All inputs have focus ring: `0 0 0 3px rgba(124,58,237,0.25)`
+
+---
+
+### Drawers
+
+Used for: AI Batch Generation, Question Editor, Category Editor.
+
+```
+┌──── MAIN CONTENT ────────────┬──── DRAWER ─────────────────┐
+│                              │  Drawer Title        [×]    │
+│                              │  ─────────────────────────  │
+│                              │  Form fields / content      │
+│                              │                             │
+│                              │  ─────────────────────────  │
+│                              │  [Cancel]    [Primary CTA]  │
+└──────────────────────────────┴─────────────────────────────┘
+```
+
+- Width: `480px`
+- Background: `--admin-bg-surface`
+- Left border: `1px solid --admin-border`
+- Overlay: `rgba(0,0,0,0.40)` covers the main content
+- Entry animation: Slide in from right, `250ms ease-out`
+- Exit animation: Slide out to right, `200ms ease-in`
+- Footer: Sticky at bottom with Cancel + primary CTA, separated from content by a `1px` border
 
 ---
 
 ### Modals
 
-Used for: confirmation dialogs, question preview, form submissions.
+Used for: confirmation dialogs, question preview, logout confirmation.
 
 ```
-┌────────── OVERLAY (50% opacity) ─────────────────┐
+┌────────── OVERLAY (60% opacity) ─────────────────┐
 │                                                  │
 │   ┌────────── MODAL (480px max-width) ────────┐  │
 │   │  Modal Title                     [×]      │  │
@@ -284,7 +314,7 @@ Used for: confirmation dialogs, question preview, form submissions.
 - Modal background: `--admin-bg-elevated`
 - Border: `1px solid --admin-border`
 - Border radius: `16px`
-- Overlay: `rgba(0,0,0,0.60)` — slightly heavier than the player app (admin context demands more focus)
+- Overlay: `rgba(0,0,0,0.60)`
 - Entry animation: `scale(0.96) → scale(1)` + `opacity 0 → 1`, `200ms ease-out`
 - Exit animation: `scale(1) → scale(0.96)` + `opacity 1 → 0`, `150ms ease-in`
 - Close button (×): Top right, icon-only, muted colour
@@ -303,12 +333,22 @@ Used for active/inactive status on questions, categories, and platform settings.
 
 ---
 
+### Progress Indicators
+
+Used in the AI Batch Generation drawer during the generation process.
+
+- **Spinner:** `24px`, accent coloured, smooth rotation
+- **Progress bar (optional):** Full width, accent fill on `--admin-bg-card` track, `6px` height, `3px` border radius
+- **State labels:** "Generating questions…" in `--admin-text-secondary`, `14px`
+
+---
+
 ### Charts and Analytics
 
-Used on the Overview page and the Leaderboard & Stats module.
+Used on the Dashboard and Gameplay pages.
 
 - **Library:** Lightweight — use native SVG or a minimal charting library (e.g. Recharts if React is used)
-- **Line charts:** Trend lines for DAU, games played — thin `2px` accent-coloured strokes, subtle gradient fill below the line
+- **Line charts:** Trend lines for player registrations, games played — thin `2px` accent-coloured strokes, subtle gradient fill below the line
 - **Bar charts:** Category performance comparison — vertical bars in category accent colours
 - **Tooltip:** Dark glass card on hover, showing exact data point value and label
 - **Axis labels:** `11px`, `--admin-text-muted`
@@ -318,12 +358,11 @@ Used on the Overview page and the Leaderboard & Stats module.
 
 ## Screen Designs
 
-### 1. Overview (Home)
+### 1. Dashboard (Home)
 
-**Top section — Stat Cards Row:**
+**Top section — KPI Cards Row:**
 - 4 cards in a 4-column grid
-- Cards: Total Players, Games Played Today, Most Active Category, Pending Requests
-- Each card has an icon, value, and a trend vs. previous period
+- Cards: Total Players, Games Played Today, Pending Requests, Platform Alerts
 
 **Middle section — Charts Row (2 columns):**
 - Left: New Registrations (last 30 days) — line chart
@@ -331,98 +370,190 @@ Used on the Overview page and the Leaderboard & Stats module.
 
 **Bottom section — Activity Feed + Quick Actions:**
 - Left: Recent platform activity log (last 10 actions)
-- Right: Quick-action buttons (Add Question, Review Requests, View Leaderboard)
+- Right: Quick-action buttons (Generate Question Batch, Review Requests, View Gameplay)
 
 ---
 
-### 2. Questions List
+### 2. Categories — Category List
 
-- Full-width table with: Question text (truncated at 60 chars), Category badge, Difficulty badge, Status badge, Date Added, Actions (Edit | Toggle Active | Delete)
-- Table header: Search bar on the left, category and status filter dropdowns in the middle, "Add Question" primary button on the right
-- Clicking Edit opens the Question Editor in a drawer from the right (not a new page — keeps table context intact)
+- Category cards displayed as a table with inline actions
+- **Table columns:** Category name, Question count, Difficulty label, Status badge, Visibility toggle, Actions
+- **Actions per row:** Edit (opens Category Editor drawer), View Questions (navigates to Category Questions page), Generate Question Batch (opens AI Batch Generation drawer)
+- A disabled category row is dimmed with a "Hidden" status badge
+- **Category Editor Drawer** (480px, slides from right):
+  - Fields: Category name, description, gradient colour pickers, difficulty label, visibility toggle, icon/emoji
+  - **Artist Spotlight Panel** (only for the Artist Spotlight category):
+    - Currently spotlighting block (read-only: artist image, name, active since date)
+    - Change Spotlight Artist form: Artist Name field, Artist Image upload/URL, Update Spotlight button
 
 ---
 
-### 3. Question Editor (Drawer)
+### 3. Category Questions (Detail View)
+
+Accessed from View Questions on a category row. Full-page view within the admin.
+
+**Page Header:**
+```
+← Categories  /  [Category Name] — Questions
+                                    [Generate Question Batch ▶]
+```
+
+**Metric Cards Row (4 cards):**
+- Total Questions, Easy, Medium, Hard — each as a stat card
+
+**Questions Table:**
+- Columns: Question text (truncated), Difficulty badge, Status badge, Batch name, Date Added, Actions
+- Table header: Search bar left, filter dropdowns (Difficulty, Status, Batch), Export button right
+- Inline status toggle
+- Bulk actions: Activate, Deactivate, Delete
+- Clicking Edit on a question row opens the Question Editor drawer
+
+---
+
+### 4. Question Management — Batch Library
+
+The Batch Library is a read-and-manage view. There is no "Add Question" or "New Batch" button here. All batch creation happens from the Categories section.
+
+**Metric Cards Row (4 cards):**
+- Total Batches, Published Questions, Draft Questions, Last Generated Batch
+
+**Batch Table:**
+- Columns: Batch Name, Category badge, Difficulty badge, Question Count, Status badge, Generated On, Actions
+- Table header: Search bar left, filter dropdowns (Category, Difficulty, Status), Export button right
+- Actions per row: View Batch, Edit Name, Publish, Archive, Delete
+
+**Batch Detail Page:**
+
+```
+← Question Management  /  [Batch Name]
+[Category badge]  [Difficulty badge]  [Status badge]  Generated: [date]
+                          [Archive Batch]  [Edit Name]  [Publish Batch ▶]
+```
+
+- Questions table (same structure as Category Questions table)
+- Clicking Edit opens the Question Editor drawer
+
+---
+
+### 5. AI Batch Generation Drawer
+
+Opens from: Category card actions, Category Questions page header, Dashboard quick actions.
+
+**Drawer Header:** "Generate Question Batch" + close (×)
+
+**Form fields (top to bottom):**
+1. Batch Name — text input (required)
+2. Category — select dropdown (pre-filled from trigger point, editable)
+3. Difficulty — select: Easy / Medium / Hard
+4. Number of Questions — number input (e.g. 10, 20, 50)
+
+**Generation states:**
+
+```
+[Initial state]
+  All fields filled → "Generate Batch" primary button enabled
+
+[Generating state]
+  Progress spinner
+  "Generating [N] questions for [Category]…"
+  Cancel button visible
+
+[Success state]
+  Preview list of generated questions (question text + correct answer preview)
+  "Regenerate" link per question (optional)
+  Footer: [Back] [Save as Draft ▶]
+
+[Error state]
+  Error icon + message
+  "Retry" primary button
+  [Cancel] secondary button
+```
+
+---
+
+### 6. Question Editor Drawer
+
+Accessed from: Batch Detail page (Edit action), Category Questions page (Edit action).
 
 - Slides in from the right side, `480px` wide
-- Title: "Edit Question" or "New Question"
-- Fields (top to bottom): Category (select), Difficulty (select), Question Text (textarea), Answer A / B / C / D (4 inputs), Correct Answer (radio group), Status (toggle), Notes (textarea, optional)
-- Preview Tab: Switches the drawer to show how this question looks in the actual game card
-- Footer: "Cancel" (secondary) + "Save" (primary) — always visible, sticky at the bottom of the drawer
+- Title: "Edit Question"
+- **Fields (top to bottom):** Difficulty (select), Question Text (textarea), Answer A / B / C / D (4 inputs), Correct Answer (radio group), Status (toggle), Notes (textarea, optional)
+- **Preview Tab:** Switches the drawer to show how this question looks in the actual game card
+- **Footer:** "Cancel" (secondary) + "Save" (primary) — always visible, sticky at the bottom
+
+**Validations:**
+- All four answer options must be filled
+- Exactly one answer must be marked correct
+- Duplicate detection: warns if a near-identical question already exists in that category
 
 ---
 
-### 4. Category Management
+### 7. Gameplay
 
-**Category Table:**
-- Columns: Category name, question count, difficulty label, status badge, visibility toggle, actions (Edit)
-- The visibility toggle is the primary inline control — no full editor needed just to show/hide a category
-- **Disabling a category (toggle off) removes the category card from the player home screen immediately and silently.** No modal confirmation is shown for this action — it is non-destructive and fully reversible. The category and all its data are preserved; toggling back on restores it instantly.
-- A disabled category row in the admin table shows a dimmed appearance (reduced opacity on the name + a "Hidden" badge) so the admin can easily see what is currently invisible to players
-
-**Category Editor Drawer** (opens on clicking Edit):
-- Category name, description
-- Gradient colour pickers (start/end) and accent colour
-- Difficulty range label
-- Visibility toggle (mirrored from the table inline toggle)
-- Category icon or emoji
-
-**Artist Spotlight Panel** (separate section within the Category Editor drawer, only shown when editing the Artist Spotlight category):
-
+**Page Header:**
 ```
-┌── ARTIST SPOTLIGHT ──────────────────────────────────────┐
-│                                                          │
-│  Currently Spotlighting                                  │
-│  ┌──────────────────────────────────────────────────┐   │
-│  │  [Artist Image]   Michael Jackson                │   │
-│  │                   Active since: 1 Jun 2026       │   │
-│  └──────────────────────────────────────────────────┘   │
-│                                                          │
-│  Change Spotlight Artist                                 │
-│  Artist Name  [__________________________________]       │
-│  Artist Image [Upload image / paste image URL   ]       │
-│                                                          │
-│  [ Cancel ]                   [ Update Spotlight ]       │
-└──────────────────────────────────────────────────────────┘
+Gameplay Sessions
+                              [View Global Leaderboard →]
 ```
 
-- **Currently Spotlighting block:** Read-only preview showing the active artist's image, name, and the date the spotlight was last set. Always visible at the top of the panel so the admin has full context before making a change.
-- **Artist Name field:** Free-text input. This value drives the category card label and the in-game header.
-- **Artist Image:** Upload from local file or paste a URL. Image previews inline after selection. Recommended dimensions noted below the input (`400 × 400px minimum, square crop`).
-- **Update Spotlight button:** Applies the change immediately. No draft/publish step — the player-facing card updates on save.
-- **Active Since** is auto-populated to the current date when the admin saves a new artist and is read-only.
+**KPI Cards Row (4 cards):**
+- Games Played Today, Active Players Today, Average Session Length, Average Level Reached
+
+**Gameplay Sessions Table:**
+- Columns: Player name (linked), Category, Level Reached, Score, Stars Earned, Date & Time, Duration, Actions
+- Table header: Search bar left, filter dropdowns (Category, Date range, Outcome), Export button right
+- Actions per row: View Player (navigates to User Management → Player Profile)
 
 ---
 
-### 5. Player List
+### 8. Global Leaderboard (Sub-view of Gameplay)
 
-- Table: Name, Account Type badge, Join Date, Games Played, Current Rank, Total Stars, Actions (View | Deactivate)
-- Clicking View opens a Player Detail panel — either a right drawer or a separate detail page
-- Player Detail: Shows full stat breakdown and per-category performance bars (reusing the player profile design language)
+Accessible via "View Global Leaderboard" button on the Gameplay page. Renders as a full sub-page, not a modal.
+
+**Page Header:**
+```
+← Gameplay  /  Global Leaderboard
+                                              [Export CSV]
+```
+
+**Leaderboard Table:**
+- Columns: Rank (number badge), Player Name, Total Stars, Accuracy Rate, Games Played, Current Rank Badge, Actions
+- Table header: Search bar left, sort dropdowns right (Sort by: Stars / Accuracy / Games Played)
+- Actions per row: View Player (navigates to User Management → Player Profile)
+- Rank 1–3 rows: Highlighted with subtle gold/silver/bronze left-border accent
 
 ---
 
-### 6. Category Requests
+### 9. Player List
 
+- Table: Name, Account Type badge, Join Date, Games Played, Current Rank, Total Stars, Actions (View Profile | Deactivate)
+- Clicking View Profile opens the Player Profile detail page
+
+---
+
+### 10. Player Profile (Detail View)
+
+Accessed from: Player List, Gameplay Sessions table (View Player), Global Leaderboard (View Player).
+
+**Page Header:**
+```
+← [source page]  /  [Player Display Name]
+```
+
+- Account Overview (name, type, join date, last active)
+- Performance Statistics (games played, levels won, stars, rank, accuracy)
+- Rank Progression (current badge, stars to next rank, progress bar)
+- Gameplay History (recent sessions list)
+- Categories Played (per-category breakdown)
+- Account Actions (Reset Progress | Deactivate Account) — danger-styled, with confirmation modals
+
+---
+
+### 11. Category Requests
+
+- Filter tabs at the top: All | Pending | Reviewed | Accepted | Declined
 - Table: Suggestion text, Submitted By, Date, Status badge, Actions (Mark Reviewed | Accept | Decline)
 - Decline action opens a small inline modal asking for an optional internal note
-- Filter tabs at the top: All | Pending | Reviewed | Accepted | Declined
-
----
-
-### 7. Leaderboard & Stats
-
-- Top: Category filter tabs (All / General / Pop / Hip Hop / Afrobeats / etc.)
-- Main: Leaderboard table (Rank, Player Name, Stars, Accuracy, Games Played)
-- Below leaderboard: Analytics section with line and bar charts
-
----
-
-### 8. Announcements
-
-- Split view: Left panel is the announcement composer form (title, body, audience selector, schedule time), Right panel shows a live preview of how the notification will appear in the player app
-- Below: Sent announcements log table
 
 ---
 
@@ -451,6 +582,7 @@ Animations in the admin are subtle and functional — never decorative for its o
 | Button hover | Background shift, `150ms` |
 | Toggle switch | Thumb slide, `200ms ease` |
 | Badge appear | No animation — instant |
+| AI generation spinner | Continuous rotation, `800ms linear` |
 
 > Keep `prefers-reduced-motion` in mind. All keyframe animations should respect the system setting by defaulting to instant transitions when reduced motion is enabled.
 
@@ -463,6 +595,7 @@ Animations in the admin are subtle and functional — never decorative for its o
 - Table headers must use `<th scope="col">` semantics
 - Colour is never the only indicator of status — badges always include a text label
 - Modals must trap focus while open and restore focus to the trigger element on close
+- Drawers must trap focus while open and restore focus to the trigger element on close
 - Form inputs must be associated with labels via `htmlFor` / `id`
 
 ---
@@ -473,10 +606,13 @@ Every list or data view must have a designed empty state — never a blank page.
 
 | Screen | Empty State Message | Action |
 |---|---|---|
-| Questions List | "No questions yet. Start building your question bank." | Add Question button |
+| Batch Library | "No question batches yet. Generate your first batch from Categories." | — (no direct CTA here — guide to Categories) |
+| Batch Detail — Questions | "This batch has no questions." | — |
+| Category Questions | "No questions in this category yet. Generate a batch to get started." | Generate Question Batch button |
+| Gameplay Sessions | "No gameplay sessions recorded yet." | — |
+| Global Leaderboard | "No players on the leaderboard yet." | — |
 | Category Requests | "No requests pending. You're all caught up." | — |
 | Player List | "No players found matching your search." | Clear filters |
-| Announcements Log | "No announcements sent yet." | Create Announcement button |
 
 Empty state layout: Centred icon + heading + subtext + optional CTA button.
 
@@ -497,7 +633,9 @@ Empty state layout: Centred icon + heading + subtext + optional CTA button.
 
 ## Open Design Questions
 
-- [ ] Should the Question Editor be a side drawer or a dedicated full-page editor? Drawer keeps context; full page gives more room for complex forms.
-- [ ] How should the admin handle pagination vs. infinite scroll for large tables?
+- [ ] Should the Question Editor drawer allow category reassignment, or is the category locked to the batch's category?
+- [ ] How should the admin handle pagination vs. infinite scroll for large gameplay session tables?
 - [ ] Should we support any chart exporting (CSV, PNG) for the analytics module in MVP?
 - [ ] Does the admin need its own logo/branding, or does it reuse the Music IQ logo with an "Admin" suffix label?
+- [ ] Should the Global Leaderboard show all-time rankings or be filterable by time period (Today / This Week / All Time)?
+- [ ] Should the AI Batch Generation drawer allow the admin to preview and regenerate individual questions before saving?
