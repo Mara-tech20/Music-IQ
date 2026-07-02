@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
 import { CATEGORIES } from '../data/questions';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const TIME_PER_QUESTION = 15;
 const PASS_THRESHOLD = 4; // Need 4 out of 4 correct to win level
 
 export default function GameplayView() {
-  const { session, getLevelQuestions, recordAnswer, showModal, markUsedIndices, playSFX, markPlayedToday } = useGame();
+  const { session, player, getLevelQuestions, recordAnswer, showModal, markUsedIndices, playSFX, markPlayedToday, updateSetting } = useGame();
   const category = CATEGORIES[session.category];
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     markPlayedToday();
@@ -38,7 +40,7 @@ export default function GameplayView() {
   useEffect(() => {
     if (session.currentLevel > levelRef.current && session.currentLevel > 1) {
       setLevelIntro(true);
-      setCountdown(5);
+      setCountdown(2);
       playSFX('click');
       
       const interval = setInterval(() => {
@@ -163,7 +165,7 @@ export default function GameplayView() {
   }, []);
 
   if (levelIntro) {
-    const introProgress = ((5 - countdown) / 5) * 100;
+    const introProgress = ((2 - countdown) / 2) * 100;
     return (
       <div style={{
         minHeight: '480px', width: '100%', maxWidth: '800px',
@@ -195,18 +197,19 @@ export default function GameplayView() {
   if (!questions.length) return null;
 
   const currentQ = questions[currentIdx];
+  if (!currentQ) return null;
   const progressPercent = ((currentIdx) / questions.length) * 100;
 
   return (
     <div style={{
       minHeight: '100%',
-      padding: '24px',
+      padding: isMobile ? '24px 12px' : '24px',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       background: category.gameGradient,
       animation: 'fadeIn 0.5s ease',
       position: 'relative',
       borderRadius: 'var(--r-lg)',
-      margin: '0 24px 24px',
+      margin: isMobile ? '0 4px 16px' : '0 24px 24px',
       boxShadow: `inset 0 0 100px ${category.glow}`,
       overflow: 'hidden'
     }}>
@@ -238,60 +241,84 @@ export default function GameplayView() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '800px' }}>
-        {/* Header stats */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)' }}>
-            Level {session.currentLevel}
-          </div>
-          <div style={{ position: 'relative' }}>
-            <div style={{
-              width: '60px', height: '60px', borderRadius: '50%',
-              background: timeLeft <= 5 ? 'rgba(239,68,68,0.15)' : 'rgba(0,0,0,0.55)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.5rem', fontWeight: 900,
-              border: `4px solid ${timeLeft <= 5 ? 'var(--red)' : category.timerColor}`,
-              color: timeLeft <= 5 ? 'var(--red)' : '#ffffff',
-              textShadow: '0 1px 4px rgba(0,0,0,0.8)',
-              animation: timeLeft <= 5 ? 'timerPulseRed 1s infinite, timerUrgent 1s infinite' : 'none',
-              transition: 'all 0.3s ease',
-              boxShadow: `0 0 0 2px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.2)`
-            }}>
-              {timeLeft}
+        {/* Header stats — 1fr|auto|1fr grid keeps timer pinned to true centre */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
+          alignItems: 'center',
+          marginBottom: isMobile ? '12px' : '24px',
+        }}>
+          {/* Left: Level */}
+          <div>
+            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)', display: 'inline-block' }}>
+              Level {session.currentLevel}
             </div>
-            {showXP && selectedAns === null && (
-              <div style={{
-                position: 'absolute',
-                top: '-30px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                color: 'var(--gold)',
-                fontWeight: 'bold',
-                fontSize: '1.3rem',
-                textShadow: '0 2px 6px rgba(0,0,0,0.5)',
-                pointerEvents: 'none',
-                animation: 'floatingXP 1.5s ease-out forwards',
-                whiteSpace: 'nowrap',
-                zIndex: 10
-              }}>
-                +{xpGained} ⭐
-              </div>
-            )}
-            <style>{`
-              @keyframes floatingXP {
-                0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
-                20% { opacity: 1; transform: translate(-50%, -15px) scale(1.1); }
-                80% { opacity: 1; transform: translate(-50%, -25px) scale(1); }
-                100% { opacity: 0; transform: translate(-50%, -35px) scale(0.9); }
-              }
-            `}</style>
           </div>
-          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)' }}>
-            Score: {session.score}
+
+          {/* Center: Timer */}
+          <div>
+            <div style={{ position: 'relative' }}>
+              <div style={{
+                width: '60px', height: '60px', borderRadius: '50%',
+                background: timeLeft <= 5 ? 'rgba(239,68,68,0.15)' : 'rgba(0,0,0,0.55)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '1.5rem', fontWeight: 900,
+                border: `4px solid ${timeLeft <= 5 ? 'var(--red)' : category.timerColor}`,
+                color: timeLeft <= 5 ? 'var(--red)' : '#ffffff',
+                textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+                animation: timeLeft <= 5 ? 'timerPulseRed 1s infinite, timerUrgent 1s infinite' : 'none',
+                transition: 'all 0.3s ease',
+                boxShadow: `0 0 0 2px rgba(0,0,0,0.3), inset 0 2px 4px rgba(0,0,0,0.2)`
+              }}>
+                {timeLeft}
+              </div>
+              {showXP && selectedAns === null && (
+                <div style={{
+                  position: 'absolute', top: '-30px', left: '50%',
+                  transform: 'translateX(-50%)',
+                  color: 'var(--gold)', fontWeight: 'bold', fontSize: '1.3rem',
+                  textShadow: '0 2px 6px rgba(0,0,0,0.5)', pointerEvents: 'none',
+                  animation: 'floatingXP 1.5s ease-out forwards', whiteSpace: 'nowrap', zIndex: 10,
+                }}>
+                  +{xpGained} ⭐
+                </div>
+              )}
+              <style>{`
+                @keyframes floatingXP {
+                  0% { opacity: 0; transform: translate(-50%, 0) scale(0.8); }
+                  20% { opacity: 1; transform: translate(-50%, -15px) scale(1.1); }
+                  80% { opacity: 1; transform: translate(-50%, -25px) scale(1); }
+                  100% { opacity: 0; transform: translate(-50%, -35px) scale(0.9); }
+                }
+              `}</style>
+            </div>
+          </div>
+
+          {/* Right: Score + Speaker */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '8px 16px', borderRadius: 'var(--r-full)', backdropFilter: 'blur(10px)' }}>
+              Score: {session.score}
+            </div>
+            <button
+              type="button"
+              onClick={() => updateSetting('music', !player.settings.music)}
+              title={player.settings.music ? 'Mute music' : 'Play music'}
+              style={{
+                background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '50%', width: '38px', height: '38px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', fontSize: '1.1rem', flexShrink: 0,
+                transition: 'background 0.2s',
+              }}
+            >
+              {player.settings.music ? '🔊' : '🔇'}
+            </button>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', marginBottom: '40px', overflow: 'hidden' }}>
+        <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', marginBottom: isMobile ? '20px' : '40px', overflow: 'hidden' }}>
           <div style={{ 
             height: '100%', background: category.barColor, 
             width: `${progressPercent}%`, transition: 'width 0.4s ease'
@@ -300,15 +327,15 @@ export default function GameplayView() {
 
         {/* Question Area (Card Swipe Animation Wrapper) */}
         <div key={currentIdx} style={{ animation: 'cardSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
-          <div className="glass-card" style={{ padding: '40px', textAlign: 'center', marginBottom: '32px' }}>
-            <div style={{ fontSize: '0.9rem', color: category.colorB, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '16px' }}>
+          <div className="glass-card" style={{ padding: isMobile ? '28px 18px' : '40px', textAlign: 'center', marginBottom: isMobile ? '20px' : '32px' }}>
+            <div style={{ fontSize: isMobile ? '0.82rem' : '0.9rem', color: category.colorB, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: isMobile ? '14px' : '16px' }}>
               Question {currentIdx + 1} of {questions.length}
             </div>
-            <h2 style={{ fontSize: '2rem', lineHeight: 1.4 }}>{currentQ.question}</h2>
+            <h2 style={{ fontSize: isMobile ? '1.35rem' : '2rem', lineHeight: 1.5 }}>{currentQ.question}</h2>
           </div>
 
           {/* Answers */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobile ? '12px' : '16px' }}>
             {currentQ.answers.map((ans, idx) => {
               let bg = 'rgba(0,0,0,0.45)';
               let borderColor = 'rgba(255,255,255,0.25)';
@@ -343,10 +370,10 @@ export default function GameplayView() {
                   onClick={() => handleSelect(idx)}
                   style={{
                     position: 'relative',
-                    padding: '24px', fontSize: '1.1rem', borderRadius: 'var(--r-md)',
+                    padding: isMobile ? '16px 12px' : '24px', fontSize: isMobile ? '1.02rem' : '1.1rem', borderRadius: 'var(--r-md)',
                     background: bg, border: `2px solid ${borderColor}`,
                     color: textColor,
-                    textAlign: 'left', display: 'flex', alignItems: 'center', gap: '16px',
+                    textAlign: 'left', display: 'flex', alignItems: 'center', gap: isMobile ? '10px' : '16px',
                     transition: 'all 0.2s', cursor: ansState !== null ? 'default' : 'pointer',
                     animation: animation,
                     backdropFilter: 'blur(16px)',
@@ -370,9 +397,9 @@ export default function GameplayView() {
                   }}
                 >
                   <div style={{
-                    width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
+                    width: isMobile ? '30px' : '36px', height: isMobile ? '30px' : '36px', borderRadius: '50%', flexShrink: 0,
                     background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 800, color: '#ffffff', fontSize: '0.9rem',
+                    fontWeight: 800, color: '#ffffff', fontSize: isMobile ? '0.8rem' : '0.9rem',
                     border: '1.5px solid rgba(255,255,255,0.3)',
                   }}>
                     {['A', 'B', 'C', 'D'][idx]}

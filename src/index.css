@@ -216,6 +216,19 @@ h1,h2,h3,h4 { font-family: var(--font-display); line-height: 1.2; font-weight: 7
   -webkit-backdrop-filter: blur(20px);
 }
 
+/* Modal cards — semi-transparent glassmorphism, legible but frosted */
+.glass-modal {
+  background: rgba(18, 10, 40, 0.80);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+}
+[data-theme="light"] .glass-modal {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(124,58,237,0.15);
+}
+
 /* ============================================
    HIDDEN UTILITY
    ============================================ */
@@ -287,4 +300,25 @@ h1,h2,h3,h4 { font-family: var(--font-display); line-height: 1.2; font-weight: 7
     --topbar-icon-size: 34px;
     --topbar-icon-gap: 6px;
   }
+}
+
+@media (max-width: 768px) {
+  /* Prevent any element from causing horizontal scroll */
+  body { overflow-x: hidden; }
+
+  /* Single-row mobile topbar (title+back / logo / sound+hamburger) */
+  :root { --topbar-h: 58px; }
+
+  /* HomeView: shrink welcome heading & rank card */
+  .home-welcome-heading { font-size: 1.8rem !important; }
+  .home-rank-card { min-width: unset !important; width: 100% !important; }
+
+  /* AuthView: tighten card padding on small screens */
+  .auth-card { padding: 28px 20px !important; }
+
+  /* Modals: reduce inner padding */
+  .modal-inner { padding: 24px 18px !important; }
+
+  /* ProfileView: single-column avatar grid on very small screens */
+  .avatar-grid { grid-template-columns: repeat(4, 1fr) !important; }
 }

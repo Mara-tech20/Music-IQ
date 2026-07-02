@@ -66,8 +66,8 @@ function GooglePicker({ onSelect, onClose }) {
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)', animation: 'fadeIn 0.2s' }}>
-      <div style={{ width: '360px', background: '#fff', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', animation: 'modalSlideUp 0.35s cubic-bezier(0.34,1.3,0.64,1)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', animation: 'fadeIn 0.2s' }}>
+      <div className="glass-modal" style={{ width: '360px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', animation: 'modalSlideUp 0.35s cubic-bezier(0.34,1.3,0.64,1)' }}>
         {/* Google header */}
         <div style={{ padding: '28px 28px 0', textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '16px' }}>

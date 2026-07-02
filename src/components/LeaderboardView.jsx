@@ -29,7 +29,7 @@ export default function LeaderboardView() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
         <div>
           <h2 style={{ fontSize: '1.9rem', marginBottom: '4px', fontFamily: 'var(--font-display)' }}>
-            🏆 Level Leaderboard
+            🏆 Leaderboard
           </h2>
           <p style={{ color: 'var(--text-secondary)' }}>Ranked by XP among fellow <strong style={{ color: 'var(--gold)' }}>{tierTitle}s</strong></p>
         </div>

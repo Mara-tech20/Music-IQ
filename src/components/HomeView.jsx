@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { CATEGORY_LIST } from '../data/questions';
 import AvatarDisplay from './AvatarDisplay';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 export default function HomeView() {
   const { player, rank, xpProgress, initials, startSession, playSFX, showModal, navigateTo, pendingRankUp } = useGame();
+  const isMobile = useIsMobile();
 
   // Show the deferred rank-up celebration when returning to home
   useEffect(() => {
@@ -41,57 +43,46 @@ export default function HomeView() {
       .cat-card .cat-emoji {
         display: inline-block;
         transition: filter 0.3s ease;
-        animation: catEmojiDance 3s ease-in-out infinite;
-        will-change: transform;
-      }
-      @keyframes catEmojiDance {
-        0%   { transform: translateY(0) scale(1) rotate(-3deg); }
-        25%  { transform: translateY(-6px) scale(1.06) rotate(3deg); }
-        50%  { transform: translateY(0) scale(1) rotate(-3deg); }
-        75%  { transform: translateY(-6px) scale(1.06) rotate(3deg); }
-        100% { transform: translateY(0) scale(1) rotate(-3deg); }
       }
       .cat-card:hover .cat-emoji {
         filter: drop-shadow(0 6px 22px currentColor) brightness(1.25);
       }
     `}</style>
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', animation: 'fadeIn 0.4s ease' }}>
-      
+    <div style={{ width: isMobile ? '100%' : '80%', padding: isMobile ? '20px 16px' : '24px', maxWidth: '1400px', margin: '0 auto', animation: 'fadeIn 0.4s ease' }}>
+
       {/* Welcome & Stats Section */}
-      <section style={{ marginBottom: '40px', display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
-          <AvatarDisplay avatar={player.avatar} initials={initials} size={64} fontSize="1.5rem" />
+      <section style={{ marginBottom: isMobile ? '32px' : '40px', display: 'flex', flexWrap: 'wrap', gap: isMobile ? '20px' : '24px', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '14px' : '18px', flexWrap: 'wrap' }}>
+          <AvatarDisplay avatar={player.avatar} initials={initials} size={isMobile ? 48 : 64} fontSize={isMobile ? '1.15rem' : '1.5rem'} />
           <div>
-            <h2 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+            <h2 className="home-welcome-heading" style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
               Welcome back, <span style={{ background: 'linear-gradient(135deg, #7c3aed, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{player.name}</span>!
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', margin: 0 }}>
-                Ready to test your musical knowledge today?
-              </p>
-              <button
-                onClick={() => { playSFX('click'); navigateTo('leaderboard'); }}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '6px',
-                  padding: '5px 14px', borderRadius: 'var(--r-full)',
-                  background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)',
-                  color: 'var(--gold)', fontSize: '0.8rem', fontWeight: 700,
-                  cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s ease',
-                }}
-                onMouseOver={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.18)'; }}
-                onMouseOut={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.1)'; }}
-                title="View Level Leaderboard"
-              >
-                📊 Level Leaderboard
-              </button>
-            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', margin: '0 0 12px' }}>
+              Ready to test your musical knowledge today?
+            </p>
+            <button
+              onClick={() => { playSFX('click'); navigateTo('leaderboard'); }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                padding: '6px 16px', borderRadius: 'var(--r-full)',
+                background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)',
+                color: 'var(--gold)', fontSize: '0.82rem', fontWeight: 700,
+                cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s ease',
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.18)'; }}
+              onMouseOut={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.1)'; }}
+              title="View Leaderboard"
+            >
+              📊 Leaderboard
+            </button>
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: '20px', minWidth: '300px', flex: 1, maxWidth: '400px' }}>
+        <div className="glass-card home-rank-card" style={{ padding: isMobile ? '22px 18px' : '20px', minWidth: '300px', flex: 1, maxWidth: '400px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
             <div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Rank</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: isMobile ? '6px' : '2px' }}>Current Rank</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--gold)' }}>{rank.title}</span>
                 <button 
@@ -138,17 +129,17 @@ export default function HomeView() {
 
       {/* Categories Section */}
       <section>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: isMobile ? '20px' : '24px' }}>
           <div>
-            <h3 style={{ fontSize: '1.8rem', marginBottom: '4px' }}>Select Category</h3>
-            <p style={{ color: 'var(--text-secondary)' }}>Choose a genre to start playing</p>
+            <h3 style={{ fontSize: isMobile ? '1.4rem' : '1.8rem', marginBottom: '6px' }}>Select Category</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: isMobile ? '0.9rem' : '1rem' }}>Choose a genre to start playing</p>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: isMobile ? '12px' : '24px' }}>
           {CATEGORY_LIST.map((cat, i) => (
-            <div 
-              key={cat.id} 
+            <div
+              key={cat.id}
               className="glass-card cat-card"
               onClick={() => handleStart(cat.id)}
               style={{
@@ -156,7 +147,8 @@ export default function HomeView() {
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 animation: `slideInUp 0.5s ease backwards`,
                 animationDelay: `${i * 0.1}s`,
-                position: 'relative'
+                position: 'relative',
+                gridColumn: isMobile && cat.id === 'artistSpotlight' ? 'span 2' : 'auto',
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
@@ -168,7 +160,7 @@ export default function HomeView() {
               }}
             >
               <div style={{
-                height: '160px', background: cat.gradient,
+                height: isMobile ? '110px' : '160px', background: cat.gradient,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '68px', position: 'relative', overflow: 'hidden'
               }}>
@@ -232,21 +224,23 @@ export default function HomeView() {
                     style={{
                       filter: `drop-shadow(0 4px 16px ${cat.glow})`,
                       position: 'relative', zIndex: 1,
-                      fontSize: '72px',
+                      fontSize: isMobile ? '44px' : '72px',
                       animationDelay: `${i * 0.15}s`,
                     }}
                   >{cat.emoji}</span>
                 )}
               </div>
-              
-              <div style={{ padding: '24px' }}>
-                <h4 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>{cat.name}</h4>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px', minHeight: '40px' }}>
-                  {cat.description}
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                  <span>{cat.questionCount}+ Questions</span>
-                  <span>Lv. {player.categoryStats[cat.id]?.bestLevel || 0} Best</span>
+
+              <div style={{ padding: isMobile ? '12px 10px 14px' : '24px' }}>
+                <h4 style={{ fontSize: isMobile ? '0.95rem' : '1.4rem', lineHeight: 1.3, marginBottom: isMobile ? '6px' : '8px' }}>{cat.name}</h4>
+                {!isMobile && (
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px', minHeight: '40px' }}>
+                    {cat.description}
+                  </p>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', fontSize: isMobile ? '0.75rem' : '0.85rem' }}>
+                  <span>{cat.questionCount}+{!isMobile && ' Questions'}</span>
+                  <span>Lv. {player.categoryStats[cat.id]?.bestLevel || 0}{!isMobile && ' Best'}</span>
                 </div>
               </div>
             </div>
@@ -259,7 +253,11 @@ export default function HomeView() {
             border: '2px dashed rgba(124,58,237,0.4)',
             background: 'rgba(124,58,237,0.04)',
             display: 'flex', flexDirection: 'column', justifyContent: 'center',
-            alignItems: 'center', minHeight: '220px', gap: '16px',
+            alignItems: 'center',
+            minHeight: isMobile ? 'unset' : '220px',
+            gap: isMobile ? '10px' : '16px',
+            padding: isMobile ? '18px 16px' : '0',
+            gridColumn: isMobile ? 'span 2' : 'auto',
             transition: 'all 0.3s ease',
             animation: `slideInUp 0.5s ease backwards`,
             animationDelay: `${CATEGORY_LIST.length * 0.1}s`,
@@ -276,18 +274,20 @@ export default function HomeView() {
           }}
         >
           <div style={{
-            width: '64px', height: '64px', borderRadius: '50%',
+            width: isMobile ? '48px' : '64px', height: isMobile ? '48px' : '64px',
+            borderRadius: '50%',
             background: 'rgba(124,58,237,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '2rem',
+            fontSize: isMobile ? '1.5rem' : '2rem',
             border: '2px dashed rgba(124,58,237,0.4)',
-            animation: 'ambientPulse 3s ease-in-out infinite'
+            animation: 'ambientPulse 3s ease-in-out infinite',
+            flexShrink: 0,
           }}>✨</div>
-          <div style={{ textAlign: 'center', padding: '0 24px' }}>
-            <h4 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '6px', fontFamily: 'var(--font-display)' }}>
+          <div style={{ textAlign: 'center', padding: isMobile ? '0 8px' : '0 24px' }}>
+            <h4 style={{ fontSize: isMobile ? '1rem' : '1.2rem', fontWeight: 800, marginBottom: isMobile ? '4px' : '6px', fontFamily: 'var(--font-display)' }}>
               Request a Category
             </h4>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.4 }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: isMobile ? '0.82rem' : '0.9rem', lineHeight: 1.4 }}>
               Don't see your favourite genre? Suggest it and we'll add it!
             </p>
           </div>
@@ -306,10 +306,10 @@ export default function HomeView() {
         <div style={{
           position: 'fixed', inset: 0, zIndex: 1100,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)',
+          background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)',
           animation: 'modalOverlayIn 0.3s ease'
         }}>
-          <div className="glass-card" style={{
+          <div className="glass-modal" style={{
             width: '90%', maxWidth: '480px', padding: '36px 30px',
             animation: 'modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
             position: 'relative', overflow: 'hidden'

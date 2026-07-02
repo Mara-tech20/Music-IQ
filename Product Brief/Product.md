@@ -74,15 +74,34 @@ Questions focused on hip hop artists, culture, albums, and iconic moments.
 Questions focused on Afrobeats artists, songs, and music culture.
 * **Theme**: Warm amber → emerald green gradient with drum circles and rhythmic waves.
 
+### Rock Music
+
+Questions focused on rock legends, iconic albums, guitar-driven anthems, and rock culture across classic, alternative, and indie sub-genres.
+
+* **Theme**: Deep onyx → electric crimson gradient with lightning bolt motifs and distortion wave textures.
+
+### Artist Spotlight
+
+Rotating deep-dive categories focused on a single iconic artist — their discography, lyrics, career milestones, and cultural impact.
+
+* **Theme**: Midnight navy → molten gold gradient with spotlight beam and star trail motifs.
+* **Note**: The featured artist rotates periodically. The card displays the spotlight artist's name and image dynamically.
+
+### Request a Category Card
+
+A dedicated call-to-action card displayed at the end of the category grid, inviting players to suggest new music genres or artist spotlights for future releases.
+
+* **Theme**: Subtle glassmorphism card with a dashed border, a `+` icon, and the label "Request a Category". Tapping it opens a lightweight modal where the player types their suggestion and submits it.
+* **Note**: Submissions are logged for product review. No gameplay is triggered from this card.
+
 Future categories:
+
 * R&B
 * Gospel
-* Rock
 * Country
 * Amapiano
 * K-Pop
 * Latin Music
-* Artist Spotlights
 
 ---
 

@@ -4,6 +4,7 @@ import { CATEGORIES } from '../data/questions';
 import { getPostGameCardDataURL } from '../utils/shareUtils';
 import { buildCategoryLeaderboard } from '../utils/leaderboard';
 import LeaderboardRow from './LeaderboardRow';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 // ─── Confetti ─────────────────────────────────────────────────────────────────
 function ConfettiCannon({ count = 45, active }) {
@@ -137,10 +138,10 @@ function ShareCardModal({ cardData, onClose, shareText }) {
     <div style={{
       position: 'fixed', inset: 0, zIndex: 1100,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)',
+      background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)',
       animation: 'modalOverlayIn 0.3s ease',
     }}>
-      <div className="glass-card" style={{
+      <div className="glass-modal" style={{
         width: '92%', maxWidth: '480px', padding: '24px 22px',
         animation: 'modalSlideUp 0.4s cubic-bezier(0.175,0.885,0.32,1.275)',
         maxHeight: '90vh', overflowY: 'auto',
@@ -199,6 +200,7 @@ function ShareCardModal({ cardData, onClose, shareText }) {
 // ─── Main PostGameView ────────────────────────────────────────────────────────
 export default function PostGameView() {
   const { session, player, navigateTo, startSession, playSFX, claimDailyReward, hasDailyReward } = useGame();
+  const isMobile = useIsMobile();
   const [confetti, setConfetti]       = useState(false);
   const [rowsVisible, setRowsVisible] = useState(false);
   const [chestClaimed, setChestClaimed] = useState(!hasDailyReward);
@@ -282,13 +284,13 @@ export default function PostGameView() {
       )}
 
       <div style={{
-        padding: '20px 20px 48px', maxWidth: '860px', margin: '0 auto',
+        padding: isMobile ? '12px 10px 32px' : '20px 20px 48px', maxWidth: '860px', margin: '0 auto',
         animation: 'slideInUp 0.5s cubic-bezier(0.34,1.1,0.64,1)',
         display: 'flex', flexDirection: 'column', gap: '22px',
       }}>
 
         {/* ── HERO CARD ── */}
-        <div className="glass-card" style={{ padding: '36px 32px 28px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div className="glass-card" style={{ padding: isMobile ? '24px 16px 20px' : '36px 32px 28px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
           <div style={{
             position: 'absolute', top: '-30%', left: '50%', transform: 'translateX(-50%)',
             width: '300px', height: '300px',
@@ -321,16 +323,16 @@ export default function PostGameView() {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button className="btn-primary" onClick={handlePlayAgain} style={{ flex: '1 1 180px', maxWidth: '260px', fontSize: '1rem', padding: '15px 20px' }}>
+            <button className="btn-primary" onClick={handlePlayAgain} style={{ flex: '1 1 180px', fontSize: '1rem', padding: '15px 20px' }}>
               🔄 &nbsp;Restart Game
             </button>
-            <button className="btn-secondary" onClick={handleHome} style={{ flex: '1 1 140px', maxWidth: '200px', fontSize: '1rem', padding: '15px 20px' }}>
+            <button className="btn-secondary" onClick={handleHome} style={{ flex: '1 1 140px', fontSize: '1rem', padding: '15px 20px' }}>
               🏠 &nbsp;Home
             </button>
             <button
               className="btn-ghost"
               onClick={handleOpenShareModal}
-              style={{ flex: '1 1 180px', maxWidth: '240px', fontSize: '1rem', padding: '15px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              style={{ flex: '1 1 100%', fontSize: '1rem', padding: '15px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
               📤 &nbsp;View Summary Card
             </button>
@@ -358,7 +360,7 @@ export default function PostGameView() {
             <div style={{ width: '4px', height: '20px', borderRadius: '2px', background: 'linear-gradient(to bottom,var(--purple),var(--purple-light))' }} />
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 800 }}>Game Details</h3>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(3,1fr)', gap: '12px' }}>
             <StatCard label="Category"      value={category.shortName || category.name} icon={category.emoji}  color={category.colorA}       delay={80}  />
             <StatCard label="Level Reached" value={`Level ${level}`}                    icon="🎯"              color="var(--cyan)"           delay={150} />
             <StatCard label="Final Score"   value={`${score.toLocaleString()} pts`}     icon="⚡"              color="var(--purple-light)"   delay={220} />
@@ -383,7 +385,7 @@ export default function PostGameView() {
             Ranked by points earned in {category.name} — XP is shown separately and doesn't affect this ranking.
           </p>
 
-          <div className="glass-card" style={{ padding: '18px 20px', overflow: 'hidden' }}>
+          <div className="glass-card" style={{ padding: isMobile ? '12px' : '18px 20px', overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '44px 40px 1fr auto', gap: '12px', padding: '0 4px 10px', borderBottom: '1px solid var(--border)', marginBottom: '10px' }}>
               {['Rank','','Player','🏆 Points'].map((h, i) => (
                 <div key={i} style={{ fontSize: '0.63rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', textAlign: i === 3 ? 'right' : 'left' }}>{h}</div>
@@ -397,22 +399,6 @@ export default function PostGameView() {
           </div>
         </section>
 
-        {/* ── BOTTOM BUTTONS ── */}
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', animation: 'slideInUp 0.5s ease 0.3s both' }}>
-          <button className="btn-primary" onClick={handlePlayAgain} style={{ flex: '1 1 200px', fontSize: '1rem', padding: '16px 20px' }}>
-            🔄 &nbsp;Restart Game
-          </button>
-          <button className="btn-secondary" onClick={handleHome} style={{ flex: '1 1 160px', fontSize: '1rem', padding: '16px 20px' }}>
-            🏠 &nbsp;Back to Home
-          </button>
-          <button
-            className="btn-ghost"
-            onClick={handleOpenShareModal}
-            style={{ flex: '1 1 180px', fontSize: '1rem', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-          >
-            📤 &nbsp;View Summary Card
-          </button>
-        </div>
 
       </div>
     </>
