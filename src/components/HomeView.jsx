@@ -380,7 +380,7 @@ export default function HomeView() {
                 <h4 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--green)', marginBottom: '10px' }}>Request Submitted!</h4>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                   Thanks for suggesting <strong style={{ color: 'var(--purple-light)' }}>"{requestInput}"</strong>!<br/>
-                  We'll review it and add it to Music IQ soon.
+                  We'll review it and add it to Music Trivia soon.
                 </p>
               </div>
             )}

@@ -116,7 +116,7 @@ export function buildNotifications(player) {
     notifs.push({ id: 'first_game', icon: '🎉', title: 'First game complete!', body: 'You played your first game. Great start!', time: '1 min ago', read: false });
   }
   notifs.push({ id: 'daily', icon: '📅', title: 'Daily Challenge', body: 'A new daily challenge is ready. Test your music knowledge!', time: '1h ago', read: true });
-  notifs.push({ id: 'welcome', icon: '🎵', title: 'Welcome to Music IQ!', body: 'Explore all 4 categories and climb the leaderboard.', time: '2h ago', read: true });
+  notifs.push({ id: 'welcome', icon: '🎵', title: 'Welcome to Music Trivia!', body: 'Explore all 4 categories and climb the leaderboard.', time: '2h ago', read: true });
   return notifs;
 }
 

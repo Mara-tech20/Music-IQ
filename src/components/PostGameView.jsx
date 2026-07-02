@@ -262,7 +262,7 @@ export default function PostGameView() {
     if (result) { setCardData(result); setShareModal(true); }
   };
 
-  const shareText = `🎵 I just scored ${score.toLocaleString()} pts in the ${category.name} challenge on Music IQ! Level ${level} · ${accuracy}% accuracy. Can you beat me? 🏆`;
+  const shareText = `🎵 I just scored ${score.toLocaleString()} pts in the ${category.name} challenge on Music Trivia! Level ${level} · ${accuracy}% accuracy. Can you beat me? 🏆`;
 
   const topThree   = leaderboardRows.slice(0, 3);
   const playerIdx  = leaderboardRows.findIndex(e => e.isPlayer);

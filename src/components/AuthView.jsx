@@ -201,7 +201,7 @@ export default function AuthView() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontSize: '2.4rem', fontWeight: 900, fontFamily: 'var(--font-display)', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1.1, marginBottom: '4px' }}>
-            MUSIC IQ
+            MUSIC TRIVIA
           </div>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             {screen === 'login'  && 'Welcome back — sign in to continue'}

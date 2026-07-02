@@ -28,7 +28,7 @@ export default function TopBar() {
     leaderboard:   'Leaderboard',
     notifications: 'Notifications',
   };
-  const currentTitle = viewTitles[activeView] || 'Music IQ';
+  const currentTitle = viewTitles[activeView] || 'Music Trivia';
 
   // Close all panels on outside click
   useEffect(() => {
@@ -100,7 +100,7 @@ export default function TopBar() {
             onClick={() => navigateTo('home')}
             style={{ flexShrink: 0, fontSize: '1.15rem', fontWeight: 900, fontFamily: 'var(--font-display)', background: 'linear-gradient(135deg,#7c3aed,#ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', cursor: 'pointer', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}
           >
-            MUSIC IQ
+            MUSIC TRIVIA
           </div>
 
           {/* Right: sound toggle (always visible) + hamburger */}
@@ -265,7 +265,7 @@ export default function TopBar() {
             cursor: 'pointer', letterSpacing: '0.04em', whiteSpace: 'nowrap',
           }}
         >
-          MUSIC IQ
+          MUSIC TRIVIA
         </div>
       </div>
 

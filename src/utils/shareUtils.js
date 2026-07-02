@@ -114,11 +114,11 @@ export function getPostGameCardDataURL({ playerName, categoryName, level, score,
   });
   ctx.shadowBlur = 0;
 
-  // 7. Header row: MUSIC IQ left, emoji right
+  // 7. Header row: MUSIC TRIVIA left, emoji right
   ctx.textAlign = 'left';
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.font = 'bold 12px "Outfit", sans-serif';
-  ctx.fillText('MUSIC IQ', 38, 54);
+  ctx.fillText('MUSIC TRIVIA', 38, 54);
   ctx.textAlign = 'right';
   ctx.font = '24px sans-serif';
   ctx.fillText('🎵', 762, 56);
@@ -239,7 +239,7 @@ export function getPostGameCardDataURL({ playerName, categoryName, level, score,
   ctx.textAlign = 'right';
   ctx.fillStyle = 'rgba(255,255,255,0.18)';
   ctx.font = 'bold 11px "Outfit", sans-serif';
-  ctx.fillText('MUSIC IQ PLAYER CARD', 762, fY + 4);
+  ctx.fillText('MUSIC TRIVIA PLAYER CARD', 762, fY + 4);
 
   const fileName = `music_iq_${(categoryName || 'game').toLowerCase().replace(/\s+/g, '_')}.png`;
   try {
@@ -307,13 +307,13 @@ export function getRankUpCardDataURL(playerName, oldRank, newRank, totalStars) {
   ctx.lineWidth = 1.5;
   ctx.strokeRect(24, 24, W - 48, H - 48);
 
-  // 5. MUSIC IQ logo
+  // 5. MUSIC TRIVIA logo
   ctx.shadowColor = 'rgba(124,58,237,0.9)';
   ctx.shadowBlur = 18;
   ctx.fillStyle = '#a855f7';
   ctx.font = 'bold 18px "Outfit", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('M U S I C   I Q', 400, 68);
+  ctx.fillText('M U S I C   T R I V I A', 400, 68);
   ctx.shadowBlur = 0;
 
   // 6. RANK UP title
@@ -397,7 +397,7 @@ export function getRankUpCardDataURL(playerName, oldRank, newRank, totalStars) {
   // 10. Footer
   ctx.fillStyle = 'rgba(255,255,255,0.2)';
   ctx.font = 'italic 12px "Outfit", sans-serif';
-  ctx.fillText('Share your achievement! Music IQ', 400, 460);
+  ctx.fillText('Share your achievement! Music Trivia', 400, 460);
 
   const fileName = `music_iq_rankup_${(newRank || 'rank').toLowerCase().replace(/\s+/g, '_')}.png`;
   try {

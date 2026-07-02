@@ -133,7 +133,7 @@ export default function Modals() {
   };
 
   const shareText = pendingRankUp
-    ? `🏆 I just ranked up in Music IQ! I've advanced from ${pendingRankUp.oldRank} to ${pendingRankUp.newRank} with ⭐ ${(pendingRankUp.stars ?? player.xp).toLocaleString()} stars! Can you beat me?`
+    ? `🏆 I just ranked up in Music Trivia! I've advanced from ${pendingRankUp.oldRank} to ${pendingRankUp.newRank} with ⭐ ${(pendingRankUp.stars ?? player.xp).toLocaleString()} stars! Can you beat me?`
     : '';
 
   return (
@@ -449,7 +449,7 @@ export default function Modals() {
           <div style={{ fontSize: '64px', marginBottom: '16px' }}>🚪</div>
           <h2 style={{ fontSize: '1.8rem', marginBottom: '12px', fontWeight: 800 }}>Confirm Log Out</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '30px' }}>
-            Are you sure you want to log out of your Music IQ account?
+            Are you sure you want to log out of your Music Trivia account?
           </p>
           <div style={{ display: 'flex', gap: '12px' }}>
             <button className="btn-ghost" style={{ flex: 1 }} onClick={hideModal}>Cancel</button>
