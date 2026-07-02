@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../context/GameContext';
 import { CATEGORY_LIST } from '../data/questions';
+import AvatarDisplay from './AvatarDisplay';
 
 export default function HomeView() {
-  const { player, rank, xpProgress, startSession, playSFX, showModal, pendingRankUp } = useGame();
+  const { player, rank, xpProgress, initials, startSession, playSFX, showModal, navigateTo, pendingRankUp } = useGame();
 
   // Show the deferred rank-up celebration when returning to home
   useEffect(() => {
@@ -58,13 +59,33 @@ export default function HomeView() {
       
       {/* Welcome & Stats Section */}
       <section style={{ marginBottom: '40px', display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <h2 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
-            Welcome back, <span style={{ background: 'linear-gradient(135deg, #7c3aed, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{player.name}</span>!
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
-            Ready to test your musical knowledge today?
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
+          <AvatarDisplay avatar={player.avatar} initials={initials} size={64} fontSize="1.5rem" />
+          <div>
+            <h2 style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+              Welcome back, <span style={{ background: 'linear-gradient(135deg, #7c3aed, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{player.name}</span>!
+            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', margin: 0 }}>
+                Ready to test your musical knowledge today?
+              </p>
+              <button
+                onClick={() => { playSFX('click'); navigateTo('leaderboard'); }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '5px 14px', borderRadius: 'var(--r-full)',
+                  background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)',
+                  color: 'var(--gold)', fontSize: '0.8rem', fontWeight: 700,
+                  cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s ease',
+                }}
+                onMouseOver={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.18)'; }}
+                onMouseOut={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.1)'; }}
+                title="View Level Leaderboard"
+              >
+                📊 Level Leaderboard
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="glass-card" style={{ padding: '20px', minWidth: '300px', flex: 1, maxWidth: '400px' }}>
@@ -146,16 +167,50 @@ export default function HomeView() {
                 e.currentTarget.style.boxShadow = 'var(--shadow-card)';
               }}
             >
-              <div style={{ 
-                height: '160px', background: cat.gradient, 
+              <div style={{
+                height: '160px', background: cat.gradient,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '68px', position: 'relative', overflow: 'hidden'
               }}>
+                {/* Category photo, cropped to just this header band */}
+                {cat.image && (
+                  <>
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      style={{
+                        position: 'absolute', inset: 0, width: '100%', height: '100%',
+                        objectFit: 'cover', objectPosition: cat.imagePosition || 'center',
+                      }}
+                    />
+                    {/* Colour-tint overlay — replaces hue/saturation with the category's
+                        gradient while keeping the photo's own contrast, so every photo
+                        card reads at the same saturation as the flat-colour cards */}
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      background: cat.gradient,
+                      mixBlendMode: 'color',
+                      pointerEvents: 'none',
+                    }} />
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      background: cat.gradient,
+                      opacity: 0.45,
+                      mixBlendMode: 'hard-light',
+                      pointerEvents: 'none',
+                    }} />
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent 55%)',
+                      pointerEvents: 'none',
+                    }} />
+                  </>
+                )}
                 {/* Decorative blurred glow blob */}
                 <div style={{
                   position: 'absolute', inset: 0,
                   background: `radial-gradient(ellipse at center, ${cat.glow} 0%, transparent 70%)`,
-                  opacity: 0.6,
+                  opacity: cat.image ? 0.35 : 0.6,
                   pointerEvents: 'none'
                 }} />
                 {/* Decorative music notes */}
@@ -171,29 +226,21 @@ export default function HomeView() {
                   animation: 'cardNoteBounce 3.2s ease-in-out infinite',
                   animationDelay: '1.1s'
                 }}>♫</div>
-                <span
-                  className="cat-emoji"
-                  style={{
-                    filter: `drop-shadow(0 4px 16px ${cat.glow})`,
-                    position: 'relative', zIndex: 1,
-                    fontSize: '72px',
-                    animationDelay: `${i * 0.15}s`,
-                  }}
-                >{cat.emoji}</span>
+                {!cat.image && (
+                  <span
+                    className="cat-emoji"
+                    style={{
+                      filter: `drop-shadow(0 4px 16px ${cat.glow})`,
+                      position: 'relative', zIndex: 1,
+                      fontSize: '72px',
+                      animationDelay: `${i * 0.15}s`,
+                    }}
+                  >{cat.emoji}</span>
+                )}
               </div>
               
               <div style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <h4 style={{ fontSize: '1.4rem' }}>{cat.name}</h4>
-                  <span style={{ 
-                    fontSize: '0.75rem', padding: '4px 10px', borderRadius: 'var(--r-full)',
-                    background: cat.difficulty === 'Easy' ? 'rgba(16,185,129,0.2)' : cat.difficulty === 'Medium' ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)',
-                    color: cat.difficulty === 'Easy' ? 'var(--green)' : cat.difficulty === 'Medium' ? 'var(--gold)' : 'var(--red)',
-                    fontWeight: 600
-                  }}>
-                    {cat.difficulty}
-                  </span>
-                </div>
+                <h4 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>{cat.name}</h4>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px', minHeight: '40px' }}>
                   {cat.description}
                 </p>

@@ -10,6 +10,7 @@ import SettingsView from './components/SettingsView';
 import AuthView from './components/AuthView';
 import NotificationsView from './components/NotificationsView';
 import PostGameView from './components/PostGameView';
+import LeaderboardView from './components/LeaderboardView';
 
 function App() {
   const { currentUser } = useAuth();
@@ -47,6 +48,7 @@ function App() {
         {activeView === 'settings' && <SettingsView />}
         {activeView === 'notifications' && <NotificationsView />}
         {activeView === 'postgame' && <PostGameView />}
+        {activeView === 'leaderboard' && <LeaderboardView />}
       </main>
     </>
   );

@@ -2,43 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useGame, getRank } from '../context/GameContext';
 import { CATEGORIES } from '../data/questions';
 import { getPostGameCardDataURL } from '../utils/shareUtils';
-
-// ─── Leaderboard helpers ───────────────────────────────────────────────────────
-function buildLeaderboard(playerName, playerXP, playerCategory) {
-  const bots = [
-    { name: 'DJ Nova',       xp: 14800, level: 18, category: 'general'         },
-    { name: 'BeatLegend',    xp: 12500, level: 15, category: 'hiphop'          },
-    { name: 'RhythmQueen',   xp: 11200, level: 14, category: 'pop'             },
-    { name: 'AfroKing',      xp: 9600,  level: 12, category: 'afrobeats'       },
-    { name: 'SoundSurfer',   xp: 8400,  level: 11, category: 'general'         },
-    { name: 'MelodyMaestro', xp: 7100,  level: 10, category: 'pop'             },
-    { name: 'GrooveMaster',  xp: 5900,  level: 8,  category: 'hiphop'          },
-    { name: 'BassDrop',      xp: 4700,  level: 7,  category: 'afrobeats'       },
-    { name: 'VocalStar',     xp: 3600,  level: 6,  category: 'general'         },
-    { name: 'ChartTopper',   xp: 2800,  level: 5,  category: 'pop'             },
-    { name: 'TrackStar',     xp: 2100,  level: 4,  category: 'hiphop'          },
-    { name: 'NotePerfect',   xp: 1500,  level: 3,  category: 'afrobeats'       },
-    { name: 'BeatMaker',     xp: 900,   level: 2,  category: 'general'         },
-  ];
-  const entries = [
-    ...bots,
-    { name: playerName, xp: playerXP, level: 1, category: playerCategory, isPlayer: true },
-  ].sort((a, b) => b.xp - a.xp);
-  return entries.map((e, i) => ({ ...e, rank: i + 1 }));
-}
-
-function getInitials(name) {
-  const parts = (name || 'MQ').trim().split(/\s+/);
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-function getMedalEmoji(rank) {
-  if (rank === 1) return '🥇';
-  if (rank === 2) return '🥈';
-  if (rank === 3) return '🥉';
-  return null;
-}
+import { buildCategoryLeaderboard } from '../utils/leaderboard';
+import LeaderboardRow from './LeaderboardRow';
 
 // ─── Confetti ─────────────────────────────────────────────────────────────────
 function ConfettiCannon({ count = 45, active }) {
@@ -120,44 +85,6 @@ function DailyChest({ onClaim, claimed }) {
         </button>
       </div>
       <style>{`@keyframes chestStar { 0%{transform:translate(-50%,-50%) rotate(var(--angle)) translateX(0) scale(0);opacity:1} 60%{opacity:1} 100%{transform:translate(-50%,-50%) rotate(var(--angle)) translateX(var(--dist)) scale(1.2);opacity:0} }`}</style>
-    </div>
-  );
-}
-
-// ─── Leaderboard row ──────────────────────────────────────────────────────────
-function LeaderboardRow({ entry, index, isVisible }) {
-  const medal = getMedalEmoji(entry.rank);
-  const rankInfo = getRank(entry.xp);
-  const catInfo = CATEGORIES[entry.category] || CATEGORIES['general'];
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: '12px',
-      padding: '11px 14px', borderRadius: '14px',
-      background: entry.isPlayer ? 'linear-gradient(135deg,rgba(124,58,237,0.25),rgba(168,85,247,0.15))' : 'transparent',
-      border: `1px solid ${entry.isPlayer ? 'rgba(168,85,247,0.5)' : 'rgba(255,255,255,0.06)'}`,
-      position: 'relative', overflow: 'hidden',
-      opacity: isVisible ? 1 : 0,
-      transform: isVisible ? 'translateX(0)' : 'translateX(-20px)',
-      transition: `opacity 0.4s ease ${index * 45}ms, transform 0.4s ease ${index * 45}ms`,
-    }}>
-      {entry.isPlayer && <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,rgba(124,58,237,0.07),transparent)', pointerEvents: 'none' }} />}
-      <div style={{ minWidth: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: entry.rank <= 3 ? '1.25rem' : '0.9rem', color: entry.rank === 1 ? '#f59e0b' : entry.rank === 2 ? '#94a3b8' : entry.rank === 3 ? '#cd7c3a' : 'var(--text-muted)' }}>
-        {medal || `#${entry.rank}`}
-      </div>
-      <div style={{ width: '34px', height: '34px', borderRadius: '50%', flexShrink: 0, background: entry.isPlayer ? 'linear-gradient(135deg,var(--purple),var(--purple-light))' : `linear-gradient(135deg,${catInfo.colorA || '#555'},${catInfo.colorB || '#888'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.75rem', color: '#fff', boxShadow: entry.isPlayer ? '0 0 12px rgba(124,58,237,0.5)' : 'none', border: entry.isPlayer ? '2px solid rgba(168,85,247,0.6)' : '2px solid transparent' }}>
-        {getInitials(entry.name)}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.88rem', color: entry.isPlayer ? 'var(--purple-light)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.name}</span>
-          {entry.isPlayer && <span style={{ fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.05em', background: 'linear-gradient(135deg,var(--purple),var(--purple-light))', color: '#fff', borderRadius: '4px', padding: '1px 5px' }}>YOU</span>}
-        </div>
-        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '1px' }}>{rankInfo.title} · Lv {entry.level}</div>
-      </div>
-      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '0.88rem', color: entry.isPlayer ? 'var(--purple-light)' : 'var(--text-secondary)', textAlign: 'right', minWidth: '70px' }}>
-        ⭐ {entry.xp.toLocaleString()}
-        <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)', fontWeight: 500 }}>stars</div>
-      </div>
     </div>
   );
 }
@@ -287,9 +214,13 @@ export default function PostGameView() {
   const xp        = session.xpEarned  || 0;
   const rankInfo  = getRank(player.xp);
 
-  const leaderboard  = buildLeaderboard(player.name, player.xp, session.category);
+  const categoryPoints = player.categoryStats[session.category]?.points || 0;
+  const leaderboard  = buildCategoryLeaderboard(player.name, categoryPoints, session.category);
   const playerEntry  = leaderboard.find(e => e.isPlayer);
   const playerLbRank = playerEntry?.rank || leaderboard.length;
+  const leaderboardRows = leaderboard.map(e => ({
+    ...e, value: e.points, valueLabel: 'points', icon: '🏆', subtitle: `Lv ${e.level}`,
+  }));
 
   const getFeedback = () => {
     if (accuracy >= 90) return { title: 'Flawless! 🏆', desc: 'Absolute masterclass. A true music legend!', color: '#f59e0b' };
@@ -331,11 +262,11 @@ export default function PostGameView() {
 
   const shareText = `🎵 I just scored ${score.toLocaleString()} pts in the ${category.name} challenge on Music IQ! Level ${level} · ${accuracy}% accuracy. Can you beat me? 🏆`;
 
-  const topThree   = leaderboard.slice(0, 3);
-  const playerIdx  = leaderboard.findIndex(e => e.isPlayer);
+  const topThree   = leaderboardRows.slice(0, 3);
+  const playerIdx  = leaderboardRows.findIndex(e => e.isPlayer);
   const start      = Math.max(3, playerIdx - 2);
-  const end        = Math.min(leaderboard.length, playerIdx + 3);
-  const aroundRows = leaderboard.slice(start, end);
+  const end        = Math.min(leaderboardRows.length, playerIdx + 3);
+  const aroundRows = leaderboardRows.slice(start, end);
   const hasSep     = start > 3;
 
   return (
@@ -432,26 +363,29 @@ export default function PostGameView() {
             <StatCard label="Level Reached" value={`Level ${level}`}                    icon="🎯"              color="var(--cyan)"           delay={150} />
             <StatCard label="Final Score"   value={`${score.toLocaleString()} pts`}     icon="⚡"              color="var(--purple-light)"   delay={220} />
             <StatCard label="Your Rank"     value={rankInfo.title} sub={`${player.xp.toLocaleString()} ⭐`} icon="🏅" color="var(--gold)" delay={290} />
-            <StatCard label="⭐ Earned"     value={`+${xp} ⭐`}                         icon="✨"              color="var(--green)"          delay={360} />
-            <StatCard label="Leaderboard"   value={`#${playerLbRank}`} sub="Global ranking" icon="📊"          color="var(--pink)"           delay={430} />
+            <StatCard label="⭐ XP Earned"  value={`+${xp} ⭐`}                         icon="✨"              color="var(--green)"          delay={360} />
+            <StatCard label="Leaderboard"   value={`#${playerLbRank}`} sub={`${category.name} ranking`} icon="📊" color="var(--pink)"        delay={430} />
           </div>
         </section>
 
-        {/* ── GLOBAL LEADERBOARD ── */}
+        {/* ── CATEGORY LEADERBOARD ── */}
         <section>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '4px', height: '20px', borderRadius: '2px', background: 'linear-gradient(to bottom,var(--gold),var(--orange))' }} />
-              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 800 }}>Global Leaderboard</h3>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.05rem', fontWeight: 800 }}>{category.emoji} {category.name} Leaderboard</h3>
             </div>
             <div style={{ padding: '4px 12px', borderRadius: 'var(--r-full)', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', fontSize: '0.72rem', fontWeight: 700, color: 'var(--gold)', letterSpacing: '0.04em' }}>
               YOUR RANK: #{playerLbRank}
             </div>
           </div>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '-8px', marginBottom: '14px' }}>
+            Ranked by points earned in {category.name} — XP is shown separately and doesn't affect this ranking.
+          </p>
 
           <div className="glass-card" style={{ padding: '18px 20px', overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '44px 40px 1fr auto', gap: '12px', padding: '0 4px 10px', borderBottom: '1px solid var(--border)', marginBottom: '10px' }}>
-              {['Rank','','Player','⭐ Stars'].map((h, i) => (
+              {['Rank','','Player','🏆 Points'].map((h, i) => (
                 <div key={i} style={{ fontSize: '0.63rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', textAlign: i === 3 ? 'right' : 'left' }}>{h}</div>
               ))}
             </div>

@@ -129,11 +129,11 @@ function defaultPlayer() {
     totalCorrect: 0, totalQuestions: 0,
     avatar: null, // { type: 'emoji', emoji: '🎵', bg: 'linear-gradient(...)' } | { type: 'image', dataURL: '...' }
     categoryStats: {
-      general:         { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
-      pop:             { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
-      hiphop:          { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
-      afrobeats:       { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
-      artistSpotlight: { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0 },
+      general:         { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0, points: 0 },
+      pop:             { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0, points: 0 },
+      hiphop:          { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0, points: 0 },
+      afrobeats:       { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0, points: 0 },
+      artistSpotlight: { played: 0, wins: 0, bestLevel: 0, correct: 0, total: 0, points: 0 },
     },
     settings: {
       music: true, sfx: true, dailyNotif: true, lbNotif: false,
@@ -163,6 +163,15 @@ function gameReducer(state, action) {
     case 'SET_DROPDOWN':  return { ...state, dropdownOpen: action.open };
     case 'SET_NOTIF_PANEL': return { ...state, notifOpen: action.open };
     case 'SET_PENDING_RANKUP': return { ...state, pendingRankUp: action.data };
+    case 'MARK_USED_INDICES':
+      return {
+        ...state,
+        session: {
+          ...state.session,
+          usedIndices: [...state.session.usedIndices, ...action.indices],
+          lastLevelIndices: action.indices,
+        },
+      };
     case 'SET_THEME':
       return { ...state, player: { ...state.player, settings: { ...state.player.settings, darkMode: action.dark } } };
     default: return state;
@@ -606,6 +615,7 @@ export function GameProvider({ children }) {
   const nextRankXP    = getNextRankXP(state.player.xp);
   const xpProgress    = getXPProgress(state.player.xp);
   const initials      = getInitials(state.player.name);
+  const soundOn       = state.player.settings.music || state.player.settings.sfx;
   const accuracy      = state.player.totalQuestions
     ? Math.round((state.player.totalCorrect  / state.player.totalQuestions)  * 100) : 0;
   const sessionAccuracy = state.session.totalAnswered
@@ -625,6 +635,11 @@ export function GameProvider({ children }) {
   const toggleTheme = useCallback(() => {
     dispatch({ type: 'SET_THEME', dark: !state.player.settings.darkMode });
   }, [state.player.settings.darkMode]);
+
+  const toggleSound = useCallback(() => {
+    const nextOn = !(state.player.settings.music || state.player.settings.sfx);
+    dispatch({ type: 'SET_PLAYER', player: { ...state.player, settings: { ...state.player.settings, music: nextOn, sfx: nextOn } } });
+  }, [state.player]);
 
   const updateSetting = useCallback((key, value) => {
     dispatch({ type: 'SET_PLAYER', player: { ...state.player, settings: { ...state.player.settings, [key]: value } } });
@@ -737,7 +752,7 @@ export function GameProvider({ children }) {
     const s = state.session;
     const p = { ...state.player };
     const cs = p.categoryStats[s.category];
-    if (cs) { cs.correct += s.totalCorrect; cs.total += s.totalAnswered; }
+    if (cs) { cs.correct += s.totalCorrect; cs.total += s.totalAnswered; cs.points = (cs.points || 0) + s.score; }
     const history = (() => {
       try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
     })();
@@ -748,16 +763,13 @@ export function GameProvider({ children }) {
     dispatch({ type: 'SET_SESSION', session: { ...s, active: false } });
   }, [state.session, state.player]);
 
+  // Dispatches a delta (not a spread snapshot) so the reducer always merges
+  // against the latest state — this is called from a setTimeout closure in
+  // GameplayView that can be scheduled before a same-tick score update lands,
+  // and spreading a stale `state.session` here previously clobbered it.
   const markUsedIndices = useCallback((indices) => {
-    dispatch({
-      type: 'SET_SESSION',
-      session: {
-        ...state.session,
-        usedIndices:       [...state.session.usedIndices, ...indices],
-        lastLevelIndices:  indices,  // remember for potential restart
-      },
-    });
-  }, [state.session]);
+    dispatch({ type: 'MARK_USED_INDICES', indices });
+  }, []);
 
   const showModal    = useCallback((modal) => dispatch({ type: 'SET_MODAL',       modal }), []);
   const hideModal    = useCallback(()       => dispatch({ type: 'SET_MODAL',       modal: null }), []);
@@ -843,12 +855,12 @@ export function GameProvider({ children }) {
     modal: state.modal, dropdownOpen: state.dropdownOpen,
     notifOpen: state.notifOpen, pendingRankUp: state.pendingRankUp,
     // derived
-    rank, nextRankXP, xpProgress, initials, accuracy, sessionAccuracy,
+    rank, nextRankXP, xpProgress, initials, accuracy, sessionAccuracy, soundOn,
     notifications, unreadCount, badges,
     // daily reward
     hasDailyReward, claimDailyReward, markPlayedToday,
     // actions
-    navigateTo, toggleTheme, updateSetting, saveName, saveAvatar,
+    navigateTo, toggleTheme, toggleSound, updateSetting, saveName, saveAvatar,
     startSession, getLevelQuestions, recordAnswer,
     advanceLevel, restartLevel, endSession, markUsedIndices,
     showModal, hideModal, toggleDropdown, toggleNotifPanel,

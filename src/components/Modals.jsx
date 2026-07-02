@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGame, RANKS } from '../context/GameContext';
 import { useAuth } from '../context/AuthContext';
 import { getRankUpCardDataURL } from '../utils/shareUtils';
+import { buildLevelLeaderboard } from '../utils/leaderboard';
 
 // ─── Social Share Buttons ─────────────────────────────────────────────────────
 function SocialShareButtons({ dataURL, fileName, shareText }) {
@@ -120,6 +121,10 @@ export default function Modals() {
 
   if (!modal) return null;
 
+  const globalRank = modal === 'win'
+    ? buildLevelLeaderboard(player.name, player.xp).entries.find(e => e.isPlayer)?.rank
+    : null;
+
   const handleDismissRankUp = () => {
     clearPendingRankUp();
     hideModal();
@@ -164,10 +169,20 @@ export default function Modals() {
           <h2 style={{ fontSize: '2rem', marginBottom: '12px', background: 'linear-gradient(135deg,#f59e0b,#fcd34d)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             Level {session.currentLevel} Cleared!
           </h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', fontSize: '1.1rem' }}>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '18px', fontSize: '1.1rem' }}>
             Amazing job! You scored {session.score} points so far.
             <br /><strong>+{session.xpEarned} XP</strong> earned!
           </p>
+          {globalRank && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              padding: '8px 18px', borderRadius: 'var(--r-full)', marginBottom: '24px',
+              background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)',
+              color: 'var(--gold)', fontWeight: 700, fontSize: '0.9rem',
+            }}>
+              🌍 Global Rank: #{globalRank}
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button className="btn-primary" onClick={() => { hideModal(); advanceLevel(); }}>Next Level 🚀</button>
             <button className="btn-secondary" onClick={() => { hideModal(); endSession(); navigateTo('postgame'); }}>End Game</button>

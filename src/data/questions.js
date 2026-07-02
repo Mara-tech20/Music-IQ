@@ -2,11 +2,18 @@
 //  DATA.JS — Question Bank (160 Questions) + Category Config
 // ============================================================
 
+import artistSpotlightImg from '../assets/artist-spotlight-mj.webp';
+import generalMusicImg from '../assets/general-music.webp';
+import popMusicImg from '../assets/pop-music.webp';
+import hipHopImg from '../assets/hip-hop.webp';
+import afrobeatsImg from '../assets/afrobeats.webp';
+
 export const CATEGORIES = {
   general: {
     id: 'general', name: 'General Music', emoji: '🎵', shortName: 'General',
     difficulty: 'Medium', questionCount: 40,
     description: 'All genres, all eras — the ultimate music test',
+    image: generalMusicImg, imagePosition: 'center',
     colorA: '#7c3aed', colorB: '#2563eb',
     gradient: 'linear-gradient(135deg, #4c1d95, #1d4ed8)',
     glow: 'rgba(124,58,237,0.5)', barColor: 'linear-gradient(90deg,#7c3aed,#2563eb)',
@@ -17,6 +24,7 @@ export const CATEGORIES = {
     id: 'pop', name: 'Pop Music', emoji: '🌟', shortName: 'Pop',
     difficulty: 'Easy', questionCount: 40,
     description: 'Chart-toppers, superstars and iconic hits',
+    image: popMusicImg, imagePosition: 'center 30%',
     colorA: '#ec4899', colorB: '#f59e0b',
     gradient: 'linear-gradient(135deg, #9d174d, #b45309)',
     glow: 'rgba(236,72,153,0.5)', barColor: 'linear-gradient(90deg,#ec4899,#f59e0b)',
@@ -27,6 +35,7 @@ export const CATEGORIES = {
     id: 'hiphop', name: 'Hip Hop', emoji: '🎤', shortName: 'Hip Hop',
     difficulty: 'Medium', questionCount: 40,
     description: 'From Bronx origins to global domination',
+    image: hipHopImg, imagePosition: 'center 35%',
     colorA: '#1a1a2e', colorB: '#f97316',
     gradient: 'linear-gradient(135deg, #111827, #7c2d12)',
     glow: 'rgba(249,115,22,0.5)', barColor: 'linear-gradient(90deg,#f97316,#ea580c)',
@@ -37,17 +46,19 @@ export const CATEGORIES = {
     id: 'afrobeats', name: 'Afrobeats', emoji: '🌍', shortName: 'Afrobeats',
     difficulty: 'Hard', questionCount: 40,
     description: 'Vibrant rhythms, African energy and culture',
-    colorA: '#d97706', colorB: '#059669',
-    gradient: 'linear-gradient(135deg, #92400e, #065f46)',
-    glow: 'rgba(217,119,6,0.5)', barColor: 'linear-gradient(90deg,#d97706,#059669)',
-    gameGradient: 'linear-gradient(135deg,rgba(146,64,14,0.7),rgba(6,95,70,0.5))',
-    timerColor: '#f59e0b',
+    image: afrobeatsImg, imagePosition: 'center 74%',
+    colorA: '#dc2626', colorB: '#f59e0b',
+    gradient: 'linear-gradient(135deg, #7f1d1d, #92400e)',
+    glow: 'rgba(220,38,38,0.55)', barColor: 'linear-gradient(90deg,#dc2626,#f59e0b)',
+    gameGradient: 'linear-gradient(135deg,rgba(127,29,29,0.7),rgba(146,64,14,0.5))',
+    timerColor: '#ef4444',
   },
   artistSpotlight: {
     id: 'artistSpotlight', name: 'Artist Spotlight', emoji: '🕺', shortName: 'MJ Spotlight',
     difficulty: 'Easy', questionCount: 20,
     description: 'Michael Jackson — the King of Pop and his legendary legacy',
     subtitle: 'Michael Jackson',
+    image: artistSpotlightImg, imagePosition: 'center 20%',
     colorA: '#d97706', colorB: '#7c3aed',
     gradient: 'linear-gradient(135deg, #78350f, #4c1d95)',
     glow: 'rgba(217,119,6,0.6)', barColor: 'linear-gradient(90deg,#d97706,#7c3aed)',

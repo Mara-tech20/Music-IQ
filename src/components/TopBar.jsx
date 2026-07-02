@@ -8,7 +8,7 @@ export default function TopBar() {
     player, activeView, navigateTo,
     toggleTheme, dropdownOpen, toggleDropdown, initials, rank,
     session, notifOpen, toggleNotifPanel, notifications, unreadCount, markNotifsRead,
-    showModal,
+    showModal, soundOn, toggleSound,
   } = useGame();
   const { logout } = useAuth();
 
@@ -44,9 +44,10 @@ export default function TopBar() {
 
   /* ── Icon button style ── */
   const iconBtn = (extra = {}) => ({
-    width: '40px', height: '40px', borderRadius: 'var(--r-full)',
+    width: 'var(--topbar-icon-size)', height: 'var(--topbar-icon-size)', borderRadius: 'var(--r-full)',
     background: 'var(--bg-input)', display: 'flex', alignItems: 'center',
     justifyContent: 'center', fontSize: '1.1rem', transition: 'background 0.2s',
+    flexShrink: 0,
     ...extra,
   });
 
@@ -58,38 +59,46 @@ export default function TopBar() {
       backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
       borderBottom: '1px solid var(--border)',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 24px', zIndex: 100,
+      padding: '0 var(--topbar-pad)', zIndex: 100,
     }}>
       {/* Left: back + title */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--topbar-icon-gap)', flex: 1, minWidth: 0 }}>
         {activeView !== 'home' && (
           <button onClick={() => navigateTo('home')} style={iconBtn({ background: 'var(--bg-topbar-btn)', color: 'var(--text-topbar)' })} title="Back to Dashboard"
             onMouseOver={e => e.currentTarget.style.background = 'var(--bg-topbar-btn-hover)'}
             onMouseOut={e  => e.currentTarget.style.background = 'var(--bg-topbar-btn)'}
           >←</button>
         )}
-        <h1 style={{ fontSize: '1.1rem', margin: 0, fontFamily: 'var(--font-display)', color: 'var(--text-topbar)' }}>
+        <h1 style={{ fontSize: '1.1rem', margin: 0, fontFamily: 'var(--font-display)', color: 'var(--text-topbar)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {currentTitle}
         </h1>
       </div>
 
       {/* Centre: Logo */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', minWidth: 0 }}>
         <div
           onClick={() => navigateTo('home')}
           style={{
-            fontSize: '1.5rem', fontWeight: 900, fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', fontWeight: 900, fontFamily: 'var(--font-display)',
             background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            cursor: 'pointer', letterSpacing: '0.04em',
+            cursor: 'pointer', letterSpacing: '0.04em', whiteSpace: 'nowrap',
           }}
         >
           MUSIC IQ
         </div>
       </div>
 
-      {/* Right: theme + notif bell + avatar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, justifyContent: 'flex-end' }}>
+      {/* Right: sound + theme + notif bell + avatar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--topbar-icon-gap)', flex: 1, justifyContent: 'flex-end', minWidth: 0 }}>
+
+        {/* Sound toggle */}
+        <button onClick={toggleSound} style={iconBtn({ background: 'var(--bg-topbar-btn)', color: 'var(--text-topbar)' })} title={soundOn ? 'Mute Sound' : 'Unmute Sound'}
+          onMouseOver={e => e.currentTarget.style.background = 'var(--bg-topbar-btn-hover)'}
+          onMouseOut={e  => e.currentTarget.style.background = 'var(--bg-topbar-btn)'}
+        >
+          {soundOn ? '🔊' : '🔇'}
+        </button>
 
         {/* Theme toggle */}
         <button onClick={toggleTheme} style={iconBtn({ background: 'var(--bg-topbar-btn)', color: 'var(--text-topbar)' })} title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
@@ -128,7 +137,7 @@ export default function TopBar() {
           <button
             onClick={() => { toggleDropdown(!dropdownOpen); toggleNotifPanel(false); }}
             style={{
-              width: '40px', height: '40px', borderRadius: '10px',
+              width: 'var(--topbar-icon-size)', height: 'var(--topbar-icon-size)', borderRadius: '10px', flexShrink: 0,
               background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
               color: '#fff', fontWeight: 'bold', border: '3px solid var(--bg-topbar)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
