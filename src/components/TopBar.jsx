@@ -7,7 +7,7 @@ export default function TopBar() {
   const {
     player, activeView, navigateTo,
     toggleTheme, dropdownOpen, toggleDropdown, initials, rank,
-    session, toggleNotifPanel, unreadCount, markNotifsRead,
+    session, toggleNotifPanel, unreadCount,
     showModal, soundOn, toggleSound,
   } = useGame();
 
@@ -90,9 +90,11 @@ export default function TopBar() {
                 style={{ width: '30px', height: '30px', flexShrink: 0, borderRadius: 'var(--r-full)', background: 'rgba(124,58,237,0.15)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.05rem', fontWeight: 700, border: '1.5px solid rgba(124,58,237,0.4)' }}
               >←</button>
             )}
-            <h1 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {currentTitle}
-            </h1>
+            {activeView !== 'notifications' && (
+              <h1 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {currentTitle}
+              </h1>
+            )}
           </div>
 
           {/* Centre: Logo */}
@@ -177,7 +179,7 @@ export default function TopBar() {
 
               <button
                 style={{ ...menuBtnStyle, position: 'relative' }}
-                onClick={() => { navigateTo('notifications'); markNotifsRead(); setMobileMenuOpen(false); }}
+                onClick={() => { navigateTo('notifications'); setMobileMenuOpen(false); }}
                 onMouseOver={e => e.currentTarget.style.background = 'var(--bg-hover-item)'}
                 onMouseOut={e  => e.currentTarget.style.background = 'transparent'}
               >
@@ -291,7 +293,7 @@ export default function TopBar() {
         {/* Notification Bell */}
         <div style={{ position: 'relative' }}>
           <button
-            onClick={() => { toggleDropdown(false); navigateTo('notifications'); markNotifsRead(); }}
+            onClick={() => { toggleDropdown(false); navigateTo('notifications'); }}
             style={iconBtn({ position: 'relative', background: 'var(--bg-topbar-btn)', color: 'var(--text-topbar)' })}
             title="Notifications"
             onMouseOver={e => e.currentTarget.style.background = 'var(--bg-topbar-btn-hover)'}

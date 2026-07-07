@@ -52,13 +52,15 @@ export default function HomeView() {
 
       {/* Welcome & Stats Section */}
       <section style={{ marginBottom: isMobile ? '32px' : '40px', display: 'flex', flexWrap: 'wrap', gap: isMobile ? '20px' : '24px', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '14px' : '18px', flexWrap: 'wrap' }}>
-          <AvatarDisplay avatar={player.avatar} initials={initials} size={isMobile ? 48 : 64} fontSize={isMobile ? '1.15rem' : '1.5rem'} />
-          <div>
-            <h2 className="home-welcome-heading" style={{ fontSize: '2.5rem', marginBottom: '8px' }}>
+        <div style={{ flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '10px' : '14px' }}>
+            <AvatarDisplay avatar={player.avatar} initials={initials} size={isMobile ? 35 : 48} fontSize={isMobile ? '0.8rem' : '1.1rem'} />
+            <h2 className="home-welcome-heading" style={{ fontSize: '2.5rem', margin: 0, lineHeight: 1.2 }}>
               Welcome back, <span style={{ background: 'linear-gradient(135deg, #7c3aed, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{player.name}</span>!
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', margin: '0 0 12px' }}>
+          </div>
+          <div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', margin: '8px 0 12px' }}>
               Ready to test your musical knowledge today?
             </p>
             <button

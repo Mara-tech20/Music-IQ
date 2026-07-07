@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useGame, RANKS } from '../context/GameContext';
 import { useAuth } from '../context/AuthContext';
 import { getRankUpCardDataURL } from '../utils/shareUtils';
-import { buildLevelLeaderboard } from '../utils/leaderboard';
+import { buildCategoryLeaderboard } from '../utils/leaderboard';
+import { CATEGORIES } from '../data/questions';
 
 // ─── Social Share Buttons ─────────────────────────────────────────────────────
 function SocialShareButtons({ dataURL, fileName, shareText }) {
@@ -121,8 +122,12 @@ export default function Modals() {
 
   if (!modal) return null;
 
-  const globalRank = modal === 'win'
-    ? buildLevelLeaderboard(player.name, player.xp).entries.find(e => e.isPlayer)?.rank
+  const category = CATEGORIES[session.category];
+  const categoryRank = modal === 'win'
+    ? (() => {
+        const livePoints = (player.categoryStats[session.category]?.points || 0) + session.score;
+        return buildCategoryLeaderboard(player.name, livePoints, session.category).find(e => e.isPlayer)?.rank;
+      })()
     : null;
 
   const handleDismissRankUp = () => {
@@ -173,14 +178,14 @@ export default function Modals() {
             Amazing job! You scored {session.score} points so far.
             <br /><strong>+{session.xpEarned} XP</strong> earned!
           </p>
-          {globalRank && (
+          {categoryRank && (
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               padding: '8px 18px', borderRadius: 'var(--r-full)', marginBottom: '24px',
               background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)',
               color: 'var(--gold)', fontWeight: 700, fontSize: '0.9rem',
             }}>
-              🌍 Global Rank: #{globalRank}
+              {category?.emoji} {category?.name} Rank: #{categoryRank}
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

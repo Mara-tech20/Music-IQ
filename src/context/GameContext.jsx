@@ -115,8 +115,8 @@ export function buildNotifications(player) {
   if (player.gamesPlayed === 1) {
     notifs.push({ id: 'first_game', icon: '🎉', title: 'First game complete!', body: 'You played your first game. Great start!', time: '1 min ago', read: false });
   }
-  notifs.push({ id: 'daily', icon: '📅', title: 'Daily Challenge', body: 'A new daily challenge is ready. Test your music knowledge!', time: '1h ago', read: true });
-  notifs.push({ id: 'welcome', icon: '🎵', title: 'Welcome to Music Trivia!', body: 'Explore all 4 categories and climb the leaderboard.', time: '2h ago', read: true });
+  notifs.push({ id: 'daily', icon: '📅', title: 'Daily Challenge', body: 'A new daily challenge is ready. Test your music knowledge!', time: '1h ago' });
+  notifs.push({ id: 'welcome', icon: '🎵', title: 'Welcome to Music Trivia!', body: 'Explore all 4 categories and climb the leaderboard.', time: '2h ago' });
   return notifs;
 }
 
@@ -630,8 +630,9 @@ export function GameProvider({ children }) {
   const sessionAccuracy = state.session.totalAnswered
     ? Math.round((state.session.totalCorrect / state.session.totalAnswered)  * 100) : 0;
 
-  const notifications = buildNotifications(state.player);
-  const unreadCount   = notifications.filter(n => !n.read && !state.player.notifsRead?.includes(n.id)).length;
+  const allNotifications = buildNotifications(state.player);
+  const notifications    = allNotifications.filter(n => !state.player.notifsRead?.includes(n.id));
+  const unreadCount      = notifications.length;
 
   // ─── Actions ───────────────────────────────────────────────────────────────
   const navigateTo = useCallback((view) => {
@@ -667,9 +668,15 @@ export function GameProvider({ children }) {
   }, []);
 
   const markNotifsRead = useCallback(() => {
-    const allIds = notifications.map(n => n.id);
-    dispatch({ type: 'SET_PLAYER', player: { ...state.player, notifsRead: allIds } });
+    const newlyRead = notifications.map(n => n.id);
+    const notifsRead = [...new Set([...(state.player.notifsRead || []), ...newlyRead])];
+    dispatch({ type: 'SET_PLAYER', player: { ...state.player, notifsRead } });
   }, [state.player, notifications]);
+
+  const markNotifRead = useCallback((id) => {
+    const notifsRead = [...new Set([...(state.player.notifsRead || []), id])];
+    dispatch({ type: 'SET_PLAYER', player: { ...state.player, notifsRead } });
+  }, [state.player]);
 
   const startSession = useCallback((category) => {
     const p    = { ...state.player };
@@ -873,7 +880,7 @@ export function GameProvider({ children }) {
     startSession, getLevelQuestions, recordAnswer,
     advanceLevel, restartLevel, endSession, markUsedIndices,
     showModal, hideModal, toggleDropdown, toggleNotifPanel,
-    markNotifsRead, playSFX, clearPendingRankUp,
+    markNotifsRead, markNotifRead, playSFX, clearPendingRankUp,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
