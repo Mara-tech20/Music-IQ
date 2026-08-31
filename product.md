@@ -1,6 +1,6 @@
-# Music IQ — Product Overview
+# Music Trivia — Product Overview
 
-Music IQ is a music knowledge quiz game where players test how well they know songs, artists, and genres. The game is built around levels, scores, and a rank system that rewards consistent play and improvement.
+Music Trivia is a music knowledge quiz game where players test how well they know songs, artists, and genres. The game is built around levels, scores, and a rank system that rewards consistent play and improvement.
 
 ---
 
@@ -194,7 +194,7 @@ All player data (name, stats, stars, settings, progress) is stored locally on th
 
 ---
 
-## What's Unique About Music IQ
+## What's Unique About Music Trivia
 
 - A rank system that rewards long-term play, not just one good session
 - Per-category stats so players can track improvement in specific genres

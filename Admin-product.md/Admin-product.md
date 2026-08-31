@@ -1,4 +1,4 @@
-# Music IQ — Admin Dashboard
+# Music Trivia — Admin Dashboard
 ## Product Requirements Document
 
 **Status:** Discovery → Design → Build
@@ -10,7 +10,7 @@
 
 ## Overview
 
-The Music IQ Admin Dashboard is an internal management interface that gives the product team full operational control over the Music IQ platform. It is not player-facing. It is a back-office tool used by admins to manage content, monitor gameplay activity, moderate submissions, and maintain platform health.
+The Music Trivia Admin Dashboard is an internal management interface that gives the product team full operational control over the Music Trivia platform. It is not player-facing. It is a back-office tool used by admins to manage content, monitor gameplay activity, moderate submissions, and maintain platform health.
 
 The admin dashboard prioritises **clarity, control, and speed of action**. Every page is purpose-built — metrics and management tools live together on the page most relevant to them. There is no standalone Analytics section; insight is surfaced in context, not in isolation.
 
